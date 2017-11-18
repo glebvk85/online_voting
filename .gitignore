@@ -99,3 +99,4 @@ ENV/
 
 # mypy
 .mypy_cache/
+/OnlineVoting/.vs/OnlineVoting/v15/*.suo
