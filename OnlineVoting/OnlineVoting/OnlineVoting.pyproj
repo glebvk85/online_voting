@@ -44,6 +44,7 @@
     <Folder Include="OnlineVoting\templates\" />
   </ItemGroup>
   <ItemGroup>
+    <Content Include="OnlineVoting\static\scripts\common.js" />
     <Content Include="requirements.txt" />
     <Content Include="OnlineVoting\static\content\bootstrap.css" />
     <Content Include="OnlineVoting\static\content\bootstrap.min.css" />
