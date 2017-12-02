@@ -1,37 +1,24 @@
-"""
-Routes and views for the flask application.
-"""
 
 from datetime import datetime
-from flask import render_template
+from OnlineVoting.auth import make_authorization_url
+from flask import render_template, make_response
 from OnlineVoting import app
 
 @app.route('/')
 @app.route('/home')
 def home():
-    """Renders the home page."""
-    return render_template(
+    resp = make_response(render_template(
         'index.html',
-        title='Home Page',
         year=datetime.now().year,
-    )
+        auth_url = make_authorization_url()
+    ))
+    resp.set_cookie("test", "hello")
+    return resp 
 
-@app.route('/contact')
-def contact():
-    """Renders the contact page."""
+@app.route('/voting')
+def voting():
     return render_template(
-        'contact.html',
-        title='Contact',
+        'voting.html',
         year=datetime.now().year,
         message='Your contact page.'
-    )
-
-@app.route('/about')
-def about():
-    """Renders the about page."""
-    return render_template(
-        'about.html',
-        title='About',
-        year=datetime.now().year,
-        message='Your application description page.'
     )

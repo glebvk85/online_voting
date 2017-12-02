@@ -12,7 +12,7 @@
     </SearchPath>
     <WorkingDirectory>.</WorkingDirectory>
     <LaunchProvider>Web launcher</LaunchProvider>
-    <WebBrowserUrl>http://localhost</WebBrowserUrl>
+    <WebBrowserUrl>http://localhost:11234</WebBrowserUrl>
     <OutputPath>.</OutputPath>
     <SuppressCollectPythonCloudServiceFiles>true</SuppressCollectPythonCloudServiceFiles>
     <Name>OnlineVoting</Name>
@@ -28,6 +28,9 @@
     <EnableUnmanagedDebugging>false</EnableUnmanagedDebugging>
   </PropertyGroup>
   <ItemGroup>
+    <Compile Include="OnlineVoting\auth.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="runserver.py" />
     <Compile Include="OnlineVoting\__init__.py" />
     <Compile Include="OnlineVoting\views.py" />
@@ -64,8 +67,7 @@
     <Content Include="OnlineVoting\static\scripts\respond.js" />
     <Content Include="OnlineVoting\static\scripts\respond.min.js" />
     <Content Include="OnlineVoting\static\scripts\_references.js" />
-    <Content Include="OnlineVoting\templates\about.html" />
-    <Content Include="OnlineVoting\templates\contact.html" />
+    <Content Include="OnlineVoting\templates\voting.html" />
     <Content Include="OnlineVoting\templates\index.html" />
     <Content Include="OnlineVoting\templates\layout.html" />
   </ItemGroup>
