@@ -7,10 +7,12 @@ from OnlineVoting import app
 @app.route('/')
 @app.route('/home')
 def home():
+    token = request.cookies.get('token')
     return render_template(
         'index.html',
         year=datetime.now().year,
-        auth_url = make_authorization_url()
+        auth_url = make_authorization_url(),
+        is_auth = not token == None
     )
 
 @app.route('/voting')

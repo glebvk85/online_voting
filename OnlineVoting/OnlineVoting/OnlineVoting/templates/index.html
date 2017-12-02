@@ -9,7 +9,11 @@
 </div>
 
 <blockquote class="trello-card">
-    <a href="{{auth_url}}">Auth</a>
+    {% if is_auth %}
+        Hello
+    {% else %}
+        <a href="{{auth_url}}">Auth</a>
+    {% endif %}
 </blockquote>
 <div class="row">
     <div class="col-md-4">
