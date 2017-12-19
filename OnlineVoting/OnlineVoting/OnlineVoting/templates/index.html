@@ -10,10 +10,11 @@
 
 <blockquote class="trello-card">
     {% if is_auth %}
-        Hello
+        {{user.full_name}}
     {% else %}
         <a href="{{auth_url}}">Auth</a>
     {% endif %}
+    {{cards}}
 </blockquote>
 <div class="row">
     <div class="col-md-4">

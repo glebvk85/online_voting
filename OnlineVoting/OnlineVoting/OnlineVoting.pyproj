@@ -31,12 +31,11 @@
     <Compile Include="OnlineVoting\auth.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="OnlineVoting\blockchain.py" />
     <Compile Include="OnlineVoting\database.py">
       <SubType>Code</SubType>
     </Compile>
-    <Compile Include="OnlineVoting\trello.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="OnlineVoting\trello.py" />
     <Compile Include="runserver.py" />
     <Compile Include="OnlineVoting\__init__.py" />
     <Compile Include="OnlineVoting\views.py" />
