@@ -13,19 +13,28 @@ class TrelloProvider:
     listPublished = '5a1c1baaf6b287cc5d7bf3c4'
     listIntegrated = '5a1c1baaf6b287cc5d7bf3c5'
 
+    isAuth = False
+
     def auth(self, token):
         self.client = TrelloClient(api_key=self.apiKey,
                                   api_secret = self.apiSecret,
                                   token = token)
         self.token = token
+        self.isAuth = True
 
     def getBoard(self):
+        if not self.isAuth:
+            return None
         return self.client.get_board(self.boardId)
 
     def getIncomingCards(self):
+        if not self.isAuth:
+            return None
         return self.getBoard().get_list(self.listIncomingId).list_cards()
 
     def getAccountInfo(self):
+        if not self.isAuth:
+            return None
         user = self.client.fetch_json('tokens/{0}?token={0}&key={1}'.format(self.token, self.apiKey))
         return self.client.get_member(user['idMember'])
 
