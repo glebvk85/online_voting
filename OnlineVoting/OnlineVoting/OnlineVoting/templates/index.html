@@ -2,6 +2,7 @@
 
 {% block content %}
 
+{% if is_auth %}
 <form action="{{ url_for('voting') }}" method=post>
     <dl>
         {% for card in cards %}
@@ -10,5 +11,5 @@
     </dl>
     <button type="submit">Vote!</button>
 </form>
-
+{% endif %}
 {% endblock %}
