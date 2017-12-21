@@ -19,12 +19,12 @@
                     <span class="icon-bar"></span>
                     <span class="icon-bar"></span>
                 </button>
-                <a href="/" class="navbar-brand">Anonymous Voting</a>
+                <a href="/" class="navbar-brand">Online Voting</a>
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <li><a href="{{ url_for('home') }}">Results</a></li>
-                    <li><a href="{{ url_for('voting') }}">Voting</a></li>
+                    <!--<li><a href="{{ url_for('home') }}">Results</a></li>
+                    <li><a href="{{ url_for('voting') }}">Voting</a></li>-->
                     {% if is_auth %}
                     <li><a href="">{{user.full_name}}</a></li>
                     {% else %}

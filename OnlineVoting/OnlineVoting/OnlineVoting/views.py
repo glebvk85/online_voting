@@ -17,6 +17,7 @@ def home():
     returnUrl = request.base_url
     return render_template(
         'index.html',
+        header = 'Голосуем за темы на обучение с учетом их актуальности для решения тактических и стратегических вопросов в команде.',
         year=datetime.now().year,
         auth_url = make_authorization_url(returnUrl),
         is_auth = token is not None,
