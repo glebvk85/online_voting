@@ -8,21 +8,24 @@ from OnlineVoting.trello import TrelloProvider
 
 def appendContract(contract):
     if (os.path.exists('conracts.data')):
-        with open('conracts.data', 'r') as f:
+        with open('conracts.data', 'r', encoding='utf8') as f:
             contracts = json.load(f)
     else:
         contracts = []
     contracts.append(contract.as_json())
-    with open('conracts.data', 'w') as f:
-        json.dump(contracts, f)
+    with open('conracts.data', 'w', encoding='utf8') as f:
+        json.dump(contracts, f, ensure_ascii=False)
 
-def extractContract(cardId, cardTitle, token):
+def extractContract(cardId, token):
     client = TrelloProvider()
     client.auth(token)
     user = client.getAccountInfo()
     card = client.getCard(cardId)
-    # owner = client.getMember(card.member_id)
-    contract = VotingContract(user.id, user.username, card.member_id, 'test', cardId, cardTitle)
+    if len(card.member_id) > 0:
+        owner = client.getMember(str(card.member_id[0]))
+    else:
+        return
+    contract = VotingContract(user.id, user.username, owner.id, owner.username, cardId, card.name)
     appendContract(contract)
 
 class Contract(JSONEncoder):

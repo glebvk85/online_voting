@@ -30,7 +30,13 @@ class TrelloProvider:
     def getIncomingCards(self):
         if not self.isAuth:
             return None
-        return self.getBoard().get_list(self.listIncomingId).list_cards()
+        result = self.getBoard().get_list(self.listIncomingId).list_cards()
+        for i in result:
+            if len(i.member_id) > 0:
+                i.member_username = self.getMember(i.member_id[0]).full_name
+            else:
+                i.member_username = 'Unknown'
+        return result
 
     def getAccountInfo(self):
         if not self.isAuth:
