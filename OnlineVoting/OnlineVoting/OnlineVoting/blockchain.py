@@ -4,17 +4,12 @@ import json
 from json import JSONEncoder
 import time
 import os  
+from uuid import uuid4
 from OnlineVoting.trello import TrelloProvider
 
 def appendContract(contract):
-    if (os.path.exists('conracts.data')):
-        with open('conracts.data', 'r', encoding='utf8') as f:
-            contracts = json.load(f)
-    else:
-        contracts = []
-    contracts.append(contract.as_json())
-    with open('conracts.data', 'w', encoding='utf8') as f:
-        json.dump(contracts, f, ensure_ascii=False)
+    with open(os.path.join('contracts', str(uuid4())), 'w', encoding='utf8') as f:
+        json.dump(contract.as_json(), f, ensure_ascii=False)
 
 def extractContract(cardId, token):
     client = TrelloProvider()
