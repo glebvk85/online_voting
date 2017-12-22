@@ -15,6 +15,8 @@ class TrelloProvider:
 
     isAuth = False
 
+    members = None
+
     def auth(self, token):
         self.client = TrelloClient(api_key=self.apiKey,
                                   api_secret = self.apiSecret,
@@ -27,15 +29,29 @@ class TrelloProvider:
             return None
         return self.client.get_board(self.boardId)
 
+    def __findMember(self, memberId):
+        for i in self.members:
+            if i.id == memberId:
+                return i
+
+    def findMember(self, card):
+        if len(card.member_id) > 0:
+            if self.members is None:
+                self.members = self.getMembers()
+            owner = self.__findMember(card.member_id[0])
+            if owner is None:
+                return self.getMember(str(card.member_id[0]))
+            else:
+                return owner
+        else:
+            return
+
     def getIncomingCards(self):
         if not self.isAuth:
             return None
         result = self.getBoard().get_list(self.listIncomingId).list_cards()
         for i in result:
-            if len(i.member_id) > 0:
-                i.member_username = self.getMember(i.member_id[0]).full_name
-            else:
-                i.member_username = 'Unknown'
+            i.member_username = self.findMember(i).full_name
         return result
 
     def getAccountInfo(self):
@@ -53,5 +69,11 @@ class TrelloProvider:
         if not self.isAuth:
             return None
         return self.client.get_member(memberId)
+
+    def getMembers(self):
+        if not self.isAuth:
+            return None
+        board = self.getBoard()
+        return board.get_members()
 
 

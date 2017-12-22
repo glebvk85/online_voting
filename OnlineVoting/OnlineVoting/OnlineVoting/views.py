@@ -5,6 +5,7 @@ from flask import render_template, make_response, request, redirect, url_for
 from OnlineVoting import app
 from OnlineVoting.trello import TrelloProvider
 from OnlineVoting.blockchain import extractContract, VotingContract
+from OnlineVoting.processing import processVoting
 
 @app.route('/')
 @app.route('/home')
@@ -28,8 +29,7 @@ def home():
 @app.route('/voting', methods=['POST'])
 def voting():
     token = request.cookies.get('token')
-    for key in request.form:
-        extractContract(key, token)
+    processVoting(request.form, token)
     return render_template(
         'voting.html',
         year=datetime.now().year,

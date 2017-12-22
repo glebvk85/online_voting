@@ -1,29 +1,20 @@
 import hashlib as hasher
 import datetime as date
 import json
-from json import JSONEncoder
 import time
 import os  
 from uuid import uuid4
-from OnlineVoting.trello import TrelloProvider
+
 
 def appendContract(contract):
     with open(os.path.join('contracts', str(uuid4())), 'w', encoding='utf8') as f:
         json.dump(contract.as_json(), f, ensure_ascii=False)
 
-def extractContract(cardId, token):
-    client = TrelloProvider()
-    client.auth(token)
-    user = client.getAccountInfo()
-    card = client.getCard(cardId)
-    if len(card.member_id) > 0:
-        owner = client.getMember(str(card.member_id[0]))
-    else:
-        return
-    contract = VotingContract(user.id, user.username, owner.id, owner.username, cardId, card.name)
+def extractContract(memberId, memberName, ownerId, ownerName, cardId, cardName):
+    contract = VotingContract(memberId, memberName, ownerId, ownerName, cardId, cardName)
     appendContract(contract)
 
-class Contract(JSONEncoder):
+class Contract:
     def __init__(self, version, memberId, memberName):
         self.typeContract =  self.__class__.__name__
         self.memberId = memberId
