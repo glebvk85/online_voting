@@ -4,7 +4,7 @@ from OnlineVoting.auth import make_authorization_url
 from flask import render_template, make_response, request, redirect, url_for
 from OnlineVoting import app
 from OnlineVoting.trello import TrelloProvider
-from OnlineVoting.blockchain import extractContract, VotingContract
+from OnlineVoting.blockchain import extractContract, VotingContract, DataBaseSystem
 from OnlineVoting.processing import processVoting
 
 @app.route('/')
@@ -16,6 +16,7 @@ def home():
     if token is not None:
         trello.auth(token)
     returnUrl = request.base_url
+    db = DataBaseSystem()
     return render_template(
         'index.html',
         header = 'Голосуем за темы на обучение с учетом их актуальности для решения тактических и стратегических вопросов в команде.',

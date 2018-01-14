@@ -10,6 +10,10 @@ def appendContract(contract):
     with open(os.path.join('contracts', str(uuid4())), 'w', encoding='utf8') as f:
         json.dump(contract.as_json(), f, ensure_ascii=False)
 
+def readContract(path_file):
+    with open(path_file, 'r', encoding='utf8') as f:
+        return json.load(f)
+
 def extractContract(memberId, memberName, ownerId, ownerName, cardId, cardName):
     contract = VotingContract(memberId, memberName, ownerId, ownerName, cardId, cardName)
     appendContract(contract)
@@ -38,4 +42,16 @@ class VotingContract(Contract):
     def as_json(self):
         return super(VotingContract, self).as_json()
 
+class DataBaseSystem:
+
+    def __init__(self):
+        self.contracts = []
+        for contract in self.get_files_from_directory('contracts'):
+            self.contracts.append(readContract(contract))
+
+    def get_files_from_directory(self, path_directory):
+        for found_file in os.listdir(path_directory):
+            full_path = os.path.join(path_directory, found_file)
+            if os.path.isfile(full_path):
+                yield full_path
 

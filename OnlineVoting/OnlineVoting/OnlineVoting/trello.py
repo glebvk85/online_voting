@@ -7,11 +7,12 @@ class TrelloProvider:
 
     boardId = 'eisJ9agE'
     listIncomingId = '59f86fde255ded6e9a366b22'
-    listVotedId = '5a1c1baaf6b287cc5d7bf3c1'
-    listLearningId = '5a1c1baaf6b287cc5d7bf3c2'
-    listReadyToPublishId = '5a1c1baaf6b287cc5d7bf3c3'
-    listPublished = '5a1c1baaf6b287cc5d7bf3c4'
-    listIntegrated = '5a1c1baaf6b287cc5d7bf3c5'
+    listVotedId = '5a028c8e14a7f0baebaf95b3'
+    listLearningId = '59f871297f5a2f912f33c506'
+    listReadyToPublishId = '59f87147fd63ab917ebfb139'
+    listPublishingId = '5a3374a74d2abc862d23a39d'
+    listPublishedId = '5a03de5bfc228ec8e0608389'
+    listIntegratedId = '59f871749dbbcc90cb18a0c4'
 
     isAuth = False
 
@@ -47,9 +48,15 @@ class TrelloProvider:
             return
 
     def getIncomingCards(self):
+        return self._getListCards(self.listIncomingId)
+
+    def getPublishedCards(self):
+        return self._getListCards(self.listPublishedId)
+
+    def _getListCards(self, listId):
         if not self.isAuth:
             return None
-        result = self.getBoard().get_list(self.listIncomingId).list_cards()
+        result = self.getBoard().get_list(listId).list_cards()
         for i in result:
             member = self.findMember(i)
             if member is None:
