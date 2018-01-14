@@ -1,6 +1,11 @@
 from os import environ
 from OnlineVoting import app
 import argparse
+import logging
+
+def configure_log(config):
+    logging.basicConfig(filename=log_filename, level=logging.DEBUG, format='[%(asctime)s] %(levelname).1s %(message)s',
+                        datefmt='%Y.%m.%d %H:%M:%S')
 
 if __name__ == '__main__':
     parser = argparse.ArgumentParser()
@@ -8,4 +13,7 @@ if __name__ == '__main__':
 
     args = parser.parse_args()
     PORT = 11234
-    app.run(host=args.host, port=PORT, threaded=True)
+    try:
+        app.run(host=args.host, port=PORT, threaded=True)
+    except Exception as x:
+        logging.exception(x)

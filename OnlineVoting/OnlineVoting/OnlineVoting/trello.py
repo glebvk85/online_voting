@@ -51,7 +51,11 @@ class TrelloProvider:
             return None
         result = self.getBoard().get_list(self.listIncomingId).list_cards()
         for i in result:
-            i.member_username = self.findMember(i).full_name
+            member = self.findMember(i)
+            if member is None:
+                i.member_username = ""
+            else:
+                i.member_username = member.full_name
         return result
 
     def getAccountInfo(self):
