@@ -1,0 +1,11 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+{% if is_auth %}
+<h3>{{header}}</h3>
+
+{{debug_print}}
+{% endif %}
+{% endblock %}

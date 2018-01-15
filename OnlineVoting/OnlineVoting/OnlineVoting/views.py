@@ -30,9 +30,52 @@ def home():
 @app.route('/voting', methods=['POST'])
 def voting():
     token = request.cookies.get('token')
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+    user = trello.getAccountInfo()
+    db = DataBaseSystem()
+    free_votes = db.free_votes(user.id)
+    if free_votes < len(request.form):
+        return error('Not enough votes', user, True)
     processVoting(request.form, token)
     return render_template(
         'voting.html',
         year=datetime.now().year,
-        message='Your vote is accepted!'
+        is_auth = token is not None,
+        message='Your vote is accepted!',
+        user = user
+    )
+
+@app.route('/system', methods=['GET'])
+def process():
+    token = request.cookies.get('token')
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+    user = trello.getAccountInfo()
+
+    db = DataBaseSystem()
+    db.sync(trello.getPublishedCards())
+
+    return render_template(
+        'system.html',
+        year=datetime.now().year,
+        header='System',
+        is_auth = token is not None,
+        debug_print = db.free_votes(user.id),
+        user = user
+    )
+
+def error(message, user, is_auth):
+    return render_template(
+        'error.html',
+        year=datetime.now().year,
+        is_auth = is_auth,
+        message = message,
+        user = user
     )
