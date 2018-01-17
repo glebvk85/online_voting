@@ -11,19 +11,25 @@ from OnlineVoting.processing import processVoting
 @app.route('/home')
 def home():
     token = request.cookies.get('token')
+    is_auth = token is not None
 
     trello = TrelloProvider()
-    if token is not None:
+    if is_auth:
         trello.auth(token)
+
     returnUrl = request.base_url
     db = DataBaseSystem()
+    incoming_cards = None
+    if is_auth:
+        incoming_cards = db.sync_new_lectures(trello.getIncomingCards())
+
     return render_template(
         'index.html',
         header = 'Голосуем за темы на обучение с учетом их актуальности для решения тактических и стратегических вопросов в команде.',
         year=datetime.now().year,
         auth_url = make_authorization_url(returnUrl),
-        is_auth = token is not None,
-        cards = trello.getIncomingCards(),
+        is_auth = is_auth,
+        cards = incoming_cards,
         user = trello.getAccountInfo()
     )
 
