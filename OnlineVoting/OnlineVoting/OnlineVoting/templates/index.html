@@ -9,7 +9,7 @@
 <form action="{{ url_for('voting') }}" method=post>
     <dl>
         {% for card in cards %}
-        <dd><input type="checkbox" name={{card.cardId}}><b>   {{card.ownerCardMemberTitle}}</b> - {{card.title}}</dd>
+        <dd><input type="checkbox" name={{card.id}}><b>   {{card.authorName}}</b> - {{card.themeName}}</dd>
         {% endfor %}
     </dl>
     <button type="submit">Vote!</button>

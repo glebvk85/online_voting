@@ -1,6 +1,5 @@
 
 from OnlineVoting.trello import TrelloProvider
-from OnlineVoting.blockchain import extractContract
 
 def findMember(members, memberId):
     for i in members:
@@ -16,5 +15,5 @@ def processVoting(voting, token):
     for vote in voting:
         card = client.getCard(vote)
         owner = client.findMember(card)
-        extractContract(user.id, user.username, owner.id, owner.username, card.id, card.name)
+        #extractContract(user.id, user.username, owner.id, owner.username, card.id, card.name)
 

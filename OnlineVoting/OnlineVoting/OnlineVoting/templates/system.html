@@ -7,5 +7,9 @@
 <h3>{{header}}</h3>
 
 {{debug_print}}
+
+{% for item in list %}
+{{item.trelloMemberId}}--{{item.trelloMemberFullName}}<br>
+{% endfor %}
 {% endif %}
 {% endblock %}

@@ -15,8 +15,8 @@ class TrelloProvider:
     listIntegratedId = '59f871749dbbcc90cb18a0c4'
 
     isAuth = False
-
     members = None
+
 
     def auth(self, token):
         self.client = TrelloClient(api_key=self.apiKey,
@@ -25,45 +25,12 @@ class TrelloProvider:
         self.token = token
         self.isAuth = True
 
+
     def getBoard(self):
         if not self.isAuth:
             return None
         return self.client.get_board(self.boardId)
 
-    def __findMember(self, memberId):
-        for i in self.members:
-            if i.id == memberId:
-                return i
-
-    def findMember(self, card):
-        if len(card.member_id) > 0:
-            if self.members is None:
-                self.members = self.getMembers()
-            owner = self.__findMember(card.member_id[0])
-            if owner is None:
-                return self.getMember(str(card.member_id[0]))
-            else:
-                return owner
-        else:
-            return
-
-    def getIncomingCards(self):
-        return self._getListCards(self.listIncomingId)
-
-    def getPublishedCards(self):
-        return self._getListCards(self.listPublishedId)
-
-    def _getListCards(self, listId):
-        if not self.isAuth:
-            return None
-        result = self.getBoard().get_list(listId).list_cards()
-        for i in result:
-            member = self.findMember(i)
-            if member is None:
-                i.member_username = ""
-            else:
-                i.member_username = member.full_name
-        return result
 
     def getAccountInfo(self):
         if not self.isAuth:
@@ -71,20 +38,45 @@ class TrelloProvider:
         user = self.client.fetch_json('tokens/{0}?token={0}&key={1}'.format(self.token, self.apiKey))
         return self.client.get_member(user['idMember'])
 
+
     def getCard(self, cardId):
         if not self.isAuth:
             return None
         return self.client.get_card(cardId)
+
+
+    def getIncomingCards(self):
+        return self._getListCards(self.listIncomingId)
+
+
+    def getPublishedCards(self):
+        return self._getListCards(self.listPublishedId)
+
+
+    def _getListCards(self, listId):
+        if not self.isAuth:
+            return None
+        return self.getBoard().get_list(listId).list_cards()
+
+    def getAllCards(self):
+        if not self.isAuth:
+            return None
+        return self.getBoard().all_cards()
 
     def getMember(self, memberId):
         if not self.isAuth:
             return None
         return self.client.get_member(memberId)
 
+
     def getMembers(self):
         if not self.isAuth:
             return None
-        board = self.getBoard()
-        return board.get_members()
+        return self.getBoard().get_members()
+
+
+
+
+
 
 

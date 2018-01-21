@@ -4,7 +4,7 @@ from OnlineVoting.auth import make_authorization_url
 from flask import render_template, make_response, request, redirect, url_for
 from OnlineVoting import app
 from OnlineVoting.trello import TrelloProvider
-from OnlineVoting.blockchain import extractContract, VotingContract, DataBaseSystem
+from OnlineVoting.blockchain import VotingContract, DataBaseSystem
 from OnlineVoting.processing import processVoting
 
 @app.route('/')
@@ -21,7 +21,9 @@ def home():
     db = DataBaseSystem()
     incoming_cards = None
     if is_auth:
-        incoming_cards = db.sync_new_lectures(trello.getIncomingCards())
+        db.sync_members(trello)
+        db.sync_lectures(trello)
+        incoming_cards = db.get_voting_list()
 
     return render_template(
         'index.html',
@@ -46,7 +48,7 @@ def voting():
     free_votes = db.free_votes(user.id)
     if free_votes < len(request.form):
         return error('Not enough votes', user, True)
-    processVoting(request.form, token)
+    #processVoting(request.form, token)
     return render_template(
         'voting.html',
         year=datetime.now().year,
@@ -64,9 +66,8 @@ def process():
     else:
         return error("Unauthorized", None, False)
     user = trello.getAccountInfo()
-
     db = DataBaseSystem()
-    db.sync(trello.getPublishedCards())
+    list = db.get_contracts("MemberContract")
 
     return render_template(
         'system.html',
@@ -74,6 +75,7 @@ def process():
         header='System',
         is_auth = token is not None,
         debug_print = db.free_votes(user.id),
+        list = list,
         user = user
     )
 
