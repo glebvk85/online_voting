@@ -5,7 +5,6 @@ from flask import render_template, make_response, request, redirect, url_for
 from OnlineVoting import app
 from OnlineVoting.trello import TrelloProvider
 from OnlineVoting.blockchain import VotingContract, DataBaseSystem
-from OnlineVoting.processing import processVoting
 
 @app.route('/')
 @app.route('/home')
@@ -45,10 +44,10 @@ def voting():
         return error("Unauthorized", None, False)
     user = trello.getAccountInfo()
     db = DataBaseSystem()
-    free_votes = db.free_votes(user.id)
+    free_votes = db.free_votes(user.id) + 2
     if free_votes < len(request.form):
         return error('Not enough votes', user, True)
-    #processVoting(request.form, token)
+    db.vote(request.form, user)
     return render_template(
         'voting.html',
         year=datetime.now().year,

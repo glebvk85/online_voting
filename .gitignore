@@ -103,3 +103,4 @@ ENV/
 *.cache
 *.pyproj.user
 /OnlineVoting/OnlineVoting/obj/Debug/*
+/OnlineVoting/OnlineVoting/contracts/*

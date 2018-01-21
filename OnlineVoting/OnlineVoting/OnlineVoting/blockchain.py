@@ -297,6 +297,13 @@ class DataBaseSystem:
                     appendContract(feedback)
                     self.contracts.append(feedback)
 
+    def vote(self, form, user):
+        for vote in form:
+            lecture = self.get_contract('LectureContract', vote)
+            member = self.get_member(user.id)
+            contract = VotingContract(member.id, lecture.id)
+            appendContract(contract)
+            self.contracts.append(contract)
 
     def sync_lectures(self, trello):
         listIncoming = trello.getAllCards()
@@ -310,7 +317,9 @@ class DataBaseSystem:
                         contract = LectureContract(owner.id, item.id, item.name)
                         appendContract(contract)
                         self.contracts.append(contract)
+        # sync votes
         self.add_voting()
+        # close contracts
         for item in listIncoming:
             contract = self.get_lecture_contract(item.id)
             if contract is not None and item.list_id != trello.listIncomingId:
@@ -323,7 +332,9 @@ class DataBaseSystem:
                     closeContract = CloseVotingContract(contract.id)
                     appendContract(closeContract)
                     self.contracts.append(closeContract)
+        # sync publication
         self.add_publication()
+        # sync publish
         for item in listIncoming:
             contract = self.get_lecture_contract(item.id)
             if contract is not None and item.list_id == trello.listPublishedId:
