@@ -16,6 +16,7 @@ def home():
     if is_auth:
         trello.auth(token)
 
+
     returnUrl = request.base_url
     db = DataBaseSystem(trello)
     incoming_cards = None
