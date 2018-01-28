@@ -1,4 +1,5 @@
-
+#!/usr/bin/python
+# -*- coding: utf-8 -*-
 from datetime import datetime
 from OnlineVoting.auth import make_authorization_url
 from flask import render_template, make_response, request, redirect, url_for
