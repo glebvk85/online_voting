@@ -107,6 +107,7 @@ class VotingModel:
         self.id = id
         self.authorName = authorName
         self.themeName = themeName
+        self.timestamp = ''
 
 class InfoModel:
     def __init__(self, time, member, action, data):
@@ -221,6 +222,22 @@ class DataBaseSystem:
             if self.get_card(item.parameters_contract[0]).list_id == '59f86fde255ded6e9a366b22':
                 yield VotingModel(item.id, self.get_member(item.creator_address).full_name, self.get_card(item.parameters_contract[0]).name)
 
+    def get_new_publication(self, user):
+        member = self.get_member_by_trello(user.id)
+        memberHash = GetHashMember(member.id, member.username)
+        hashPublicationContract = GetHashContract('publication')
+        hashFeedbackContract = GetHashContract('feedback')
+        for item in GetOpenChildContracts(self.transactions, hashPublicationContract):
+            found = False
+            feedbacks = GetOpenChildContracts(self.transactions, hashFeedbackContract)
+            for j in feedbacks:
+                if j.parent_contract_id == item.id and memberHash == j.creator_address:
+                    found = True
+                    break
+            if not found:
+                parent = self.get_contract(item.parent_contract_id)
+                yield VotingModel(item.id, self.get_member(item.creator_address).full_name, self.get_card(parent.parameters_contract[0]).name)
+
     def vote(self, form, user):
         for item in form:
             lecture = self.get_contract(item)
@@ -236,6 +253,13 @@ class DataBaseSystem:
             contract = CreatePublicationContract(GetHashMember(member.id, member.username), lecture.id)
             appendTransaction(contract)
             self.transactions.append(contract)
+
+    def feedback(self, contractId, user, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend):
+        lecture = self.get_contract(contractId)
+        member = self.get_member_by_trello(user.id)
+        contract = CreateFeedbackContract(member.id, member.username, lecture.id, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend)
+        appendTransaction(contract)
+        self.transactions.append(contract)
 
     def get_info(self):
         sortedList = sorted(self.transactions, key=sortTransaction)

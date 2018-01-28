@@ -1,0 +1,72 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+{% if is_auth %}
+<h3>{{header}}</h3>
+
+<form action="{{ url_for('apply_feedback') }}" method=post>
+    <dl>
+        <dd><input type="hidden" name="id" value="{{contract_id}}"></dd>
+        {{title1}}
+        <dd><input type="radio" name="themeIsActual" value="1">1</dd>
+        <dd><input type="radio" name="themeIsActual" value="2">2</dd>
+        <dd><input type="radio" name="themeIsActual" value="3">3</dd>
+        <dd><input type="radio" name="themeIsActual" value="4">4</dd>
+        <dd><input type="radio" name="themeIsActual" value="5">5</dd>
+        <dd><input type="radio" name="themeIsActual" value="6">6</dd>
+        <dd><input type="radio" name="themeIsActual" value="7">7</dd>
+        <dd><input type="radio" name="themeIsActual" value="8">8</dd>
+        <dd><input type="radio" name="themeIsActual" value="9">9</dd>
+        <dd><input type="radio" name="themeIsActual" value="10">10</dd>
+        {{title2}}
+        <dd><input type="radio" name="canApply" value="1">1</dd>
+        <dd><input type="radio" name="canApply" value="2">2</dd>
+        <dd><input type="radio" name="canApply" value="3">3</dd>
+        <dd><input type="radio" name="canApply" value="4">4</dd>
+        <dd><input type="radio" name="canApply" value="5">5</dd>
+        <dd><input type="radio" name="canApply" value="6">6</dd>
+        <dd><input type="radio" name="canApply" value="7">7</dd>
+        <dd><input type="radio" name="canApply" value="8">8</dd>
+        <dd><input type="radio" name="canApply" value="9">9</dd>
+        <dd><input type="radio" name="canApply" value="10">10</dd>
+        {{title3}}
+        <dd><input type="radio" name="qualityInformation" value="1">1</dd>
+        <dd><input type="radio" name="qualityInformation" value="2">2</dd>
+        <dd><input type="radio" name="qualityInformation" value="3">3</dd>
+        <dd><input type="radio" name="qualityInformation" value="4">4</dd>
+        <dd><input type="radio" name="qualityInformation" value="5">5</dd>
+        <dd><input type="radio" name="qualityInformation" value="6">6</dd>
+        <dd><input type="radio" name="qualityInformation" value="7">7</dd>
+        <dd><input type="radio" name="qualityInformation" value="8">8</dd>
+        <dd><input type="radio" name="qualityInformation" value="9">9</dd>
+        <dd><input type="radio" name="qualityInformation" value="10">10</dd>
+        {{title4}}
+        <dd><input type="radio" name="preparednessAuthor" value="1">1</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="2">2</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="3">3</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="4">4</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="5">5</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="6">6</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="7">7</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="8">8</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="9">9</dd>
+        <dd><input type="radio" name="preparednessAuthor" value="10">10</dd>
+        {{title5}}
+        <dd><input type="radio" name="canRecommend" value="1">1</dd>
+        <dd><input type="radio" name="canRecommend" value="2">2</dd>
+        <dd><input type="radio" name="canRecommend" value="3">3</dd>
+        <dd><input type="radio" name="canRecommend" value="4">4</dd>
+        <dd><input type="radio" name="canRecommend" value="5">5</dd>
+        <dd><input type="radio" name="canRecommend" value="6">6</dd>
+        <dd><input type="radio" name="canRecommend" value="7">7</dd>
+        <dd><input type="radio" name="canRecommend" value="8">8</dd>
+        <dd><input type="radio" name="canRecommend" value="9">9</dd>
+        <dd><input type="radio" name="canRecommend" value="10">10</dd>
+    </dl>
+    <button type="submit">Send!</button>
+</form>
+
+{% endif %}
+{% endblock %}

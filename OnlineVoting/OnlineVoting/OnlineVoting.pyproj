@@ -54,8 +54,10 @@
     <Content Include="OnlineVoting\templates\error.html" />
     <Content Include="OnlineVoting\templates\room.html" />
     <Content Include="OnlineVoting\templates\info.html" />
+    <Content Include="OnlineVoting\templates\feedback.html" />
     <Content Include="OnlineVoting\templates\system.html" />
     <Content Include="OnlineVoting\templates\create_feedback.html" />
+    <Content Include="OnlineVoting\templates\apply_feedback.html" />
     <Content Include="requirements.txt" />
     <Content Include="OnlineVoting\static\content\bootstrap.css" />
     <Content Include="OnlineVoting\static\content\bootstrap.min.css" />

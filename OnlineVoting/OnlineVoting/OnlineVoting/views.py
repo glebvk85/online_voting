@@ -73,9 +73,12 @@ def room():
 
     return render_template(
         'room.html',
+        header = 'My themes',
+        header2 = 'Open feedbacks',
         year=datetime.now().year,
         is_auth = is_auth,
-        list = themes,
+        themes = themes,
+        feedbacks = db.get_new_publication(user),
         user = user
     )
 
@@ -96,6 +99,59 @@ def create_feedback():
         is_auth = token is not None,
         message='Page for feedback created!',
         user = user
+    )
+
+def try_get_value(form, valueName):
+    return form[valueName] if valueName in form else 0
+
+
+@app.route('/apply_feedback', methods=['POST'])
+def apply_feedback():
+    token = request.cookies.get('token')
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+    user = trello.getAccountInfo()
+    db = DataBaseSystem(trello)
+    db.feedback(request.form['id'], user, try_get_value(request.form, 'themeIsActual'), try_get_value(request.form, 'canApply'), try_get_value(request.form, 'qualityInformation'), try_get_value(request.form, 'preparednessAuthor'), try_get_value(request.form, 'canRecommend'))
+    return render_template(
+        'apply_feedback.html',
+        year=datetime.now().year,
+        is_auth = token is not None,
+        message='Thanks for feedback!',
+        user = user
+    )
+
+
+@app.route('/feedback')
+def feedback():
+    token = request.cookies.get('token')
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+    user = trello.getAccountInfo()
+    db = DataBaseSystem(trello)
+    contract = db.get_contract(request.values['id'])
+    contract = db.get_contract(contract.parent_contract_id)
+    if contract is None:
+        return error("Publication not found", user, True)
+    card = db.get_card(contract.parameters_contract[0])
+    return render_template(
+        'feedback.html',
+        year=datetime.now().year,
+        is_auth = token is not None,
+        header=card.name,
+        user = user,
+        contract_id = request.values['id'],
+        title1 = 'Эта тема актуальна/релевантна для наших задач',
+        title2 = 'Я могу применить полученные навыки и знания на практике для решения наших задач',
+        title3 = 'Оцените качество изложения и наглядность информации',
+        title4 = 'Оцените качество подготовки выступающих и глубину проработки темы',
+        title5 = 'Я бы рекомендовал эту публикацию своим коллегам, не участвовавшим в мероприятии'
     )
 
 
