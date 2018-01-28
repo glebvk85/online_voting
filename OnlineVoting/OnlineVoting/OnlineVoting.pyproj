@@ -42,6 +42,7 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="OnlineVoting\" />
+    <Folder Include="OnlineVoting\contracts\" />
     <Folder Include="OnlineVoting\static\" />
     <Folder Include="OnlineVoting\static\content\" />
     <Folder Include="OnlineVoting\static\fonts\" />

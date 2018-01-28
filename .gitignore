@@ -104,3 +104,5 @@ ENV/
 *.pyproj.user
 /OnlineVoting/OnlineVoting/obj/Debug/*
 /OnlineVoting/OnlineVoting/contracts/*
+/OnlineVoting/OnlineVoting/transactions/*
+/OnlineVoting/OnlineVoting/obj/Release/*

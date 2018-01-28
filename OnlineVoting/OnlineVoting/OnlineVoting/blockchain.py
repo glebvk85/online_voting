@@ -4,26 +4,27 @@ import json
 import time
 import os  
 from uuid import uuid4
+from collections import defaultdict
 
 
-def appendContract(contract):
-    with open(os.path.join('contracts', contract.id), 'w', encoding='utf8') as f:
-        json.dump(contract.as_json(), f, ensure_ascii=False)
+def appendTransaction(transaction):
+    with open(os.path.join('transactions', transaction.id), 'w', encoding='utf8') as f:
+        json.dump(transaction.as_json(), f, ensure_ascii=False)
 
-def readContract(path_file):
+def readTransaction(path_file):
     with open(path_file, 'r', encoding='utf8') as f:
-        return Contract(j = f)
+        return Transaction(j = f)
 
-def sortContract(contract):
+def sortTransaction(contract):
     return contract.timestamp
 
-class Contract:
+class Transaction:
     def __init__(self, version = None, j = None):
         if version is not None:
             self.id = str(uuid4())
-            self.typeContract =  self.__class__.__name__
+            self.type =  self.__class__.__name__
             self.timestamp = str(time.mktime(date.datetime.now().timetuple()))
-            self.versionContract = version
+            self.version = version
         elif j is not None:
             self.__dict__ = json.load(j)
         else:
@@ -32,80 +33,76 @@ class Contract:
     def as_json(self):
         return self.__dict__
 
-
-class MemberContract(Contract):
-    def __init__(self, trelloMemberId, trelloMemberName, trelloMemberFullName):
-        super(MemberContract, self).__init__(version = 1)
-        self.trelloMemberId = trelloMemberId
-        self.trelloMemberName = trelloMemberName
-        self.trelloMemberFullName = trelloMemberFullName
-
-    def as_json(self):
-        return super(MemberContract, self).as_json()
-
-
-class LectureContract(Contract):
-    def __init__(self, ownerMemberContractId, trelloCardId, trelloTitle):
-        super(LectureContract, self).__init__(version = 1)
-        self.ownerMemberContractId = ownerMemberContractId
-        self.trelloCardId = trelloCardId
-        self.trelloTitle = trelloTitle
+class Transfer(Transaction):
+    def __init__(self, from_address, to_address, count):
+        super(Transfer, self).__init__(version = 1)
+        self.from_address = from_address
+        self.to_address = to_address
+        self.count = count
 
     def as_json(self):
-        return super(LectureContract, self).as_json()
+        return super(Transfer, self).as_json()
 
-
-class VotingContract(Contract):
-    def __init__(self, memberContractId, lectureContractId):
-        super(VotingContract, self).__init__(version = 1)
-        self.countOfVotes = 1
-        self.memberContractId = memberContractId
-        self.lectureContractId = lectureContractId
-        
-    def as_json(self):
-        return super(VotingContract, self).as_json()
-
-
-class CloseVotingContract(Contract):
-    def __init__(self, lectureContractId):
-        super(CloseVotingContract, self).__init__(version = 1)
-        self.lectureContractId = lectureContractId
-        
-    def as_json(self):
-        return super(CloseVotingContract, self).as_json()
-
-
-class PublicationContract(Contract):
-    def __init__(self, lectureContractId):
-        super(PublicationContract, self).__init__(version = 1)
-        self.lectureContractId = lectureContractId
+class Contract(Transaction):
+    def __init__(self, creator_address, hash_contract, parameters_contract):
+        super(Contract, self).__init__(version = 1)
+        self.creator_address = creator_address
+        self.hash_contract = hash_contract
+        self.parameters_contract = parameters_contract
 
     def as_json(self):
-        return super(PublicationContract, self).as_json()
+        return super(Contract, self).as_json()
 
-
-class FeedbackContract(Contract):
-    def __init__(self, publicationContractId, memberContractId, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend):
-        super(FeedbackContract, self).__init__(version = 1)
-        self.publicationContractId = publicationContractId
-        self.memberContractId = memberContractId
-        self.themeIsActual = themeIsActual
-        self.canApply = canApply
-        self.qualityInformation = qualityInformation
-        self.preparednessAuthor = preparednessAuthor
-        self.canRecommend = canRecommend
+class ChildContract(Transaction):
+    def __init__(self, creator_address, hash_contract, parent_contract_id, parameters_contract):
+        super(ChildContract, self).__init__(version = 1)
+        self.creator_address = creator_address
+        self.parent_contract_id = parent_contract_id
+        self.hash_contract = hash_contract
+        self.parameters_contract = parameters_contract
 
     def as_json(self):
-        return super(FeedbackContract, self).as_json()
+        return super(ChildContract, self).as_json()
 
-
-class ClosingLectureContract(Contract):
-    def __init__(self, lectureContractId):
-        super(ClosingLectureContract, self).__init__(version = 1)
-        self.lectureContractId = lectureContractId
+class ClosingContract(Transaction):
+    def __init__(self, creator_address, parent_contract_id, parameters_contract):
+        super(ClosingContract, self).__init__(version = 1)
+        self.creator_address = creator_address
+        self.parent_contract_id = parent_contract_id
+        self.parameters_contract = parameters_contract
 
     def as_json(self):
-        return super(ClosingLectureContract, self).as_json()
+        return super(ClosingContract, self).as_json()
+
+
+def GetHashMember(trelloMemberId, trelloMemberName):
+    sha = hasher.sha256()
+    sha.update((str(trelloMemberId) + str(trelloMemberName)).encode('utf-8'))
+    return sha.hexdigest()
+
+def GetHashContract(nameContract):
+    sha = hasher.sha256()
+    sha.update((str(nameContract)).encode('utf-8'))
+    return sha.hexdigest()
+
+def CreateThemeContract(trelloMemberId, trelloMemberName, trelloCardId):
+    return Contract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('theme'), [trelloCardId])
+
+def Vote(trelloMemberId, trelloMemberName, contractId):
+    return ChildContract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('vote'), contractId, [1])
+
+def CreatePublicationContract(trelloMemberId, trelloMemberName, contractId):
+    return ChildContract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('publication'), contractId, [])
+
+def CreatePublicationContract(memberHash, contractId):
+    return ChildContract(memberHash, GetHashContract('publication'), contractId, [])
+
+def CreateFeedbackContract(trelloMemberId, trelloMemberName, contractId, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend):
+    return ChildContract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('feedback'), contractId, [themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend])
+
+def CloseThemeContract(trelloMemberId, trelloMemberName, trelloCardId):
+    return ClosingContract(GetHashMember(trelloMemberId, trelloMemberName), contractId, [])
+
 
 
 class VotingModel:
@@ -114,12 +111,43 @@ class VotingModel:
         self.authorName = authorName
         self.themeName = themeName
 
+def GetOpenChildContracts(list, hashContract):
+    sortedList = sorted(list, key=sortTransaction)
+    contracts = []
+    closedContracts = set()
+    for item in sortedList:
+        if item.type == 'ChildContract':
+            if item.hash_contract == hashContract:
+                element = contracts.append(item)
+        if item.type == 'ClosingContract':
+            closedContracts.add(item.parent_contract_id)
+    for item in contracts:
+        if item.parent_contract_id not in closedContracts:
+            yield item
+
+
+def GetOpenContracts(list, hashContract):
+    sortedList = sorted(list, key=sortTransaction)
+    contracts = []
+    closedContracts = set()
+    for item in sortedList:
+        if item.type == 'Contract':
+            if item.hash_contract == hashContract:
+                element = contracts.append(item)
+        if item.type == 'ClosingContract':
+            closedContracts.add(item.parent_contract_id)
+    for item in contracts:
+        if item.id not in closedContracts:
+            yield item
+
 
 class DataBaseSystem:
-    def __init__(self):
-        self.contracts = []
-        for contract in self.get_files_from_directory('contracts'):
-            self.contracts.append(readContract(contract))
+    def __init__(self, trello):
+        self.transactions = []
+        for transactionPath in self.get_files_from_directory('transactions'):
+            self.transactions.append(readTransaction(transactionPath))
+        self.allCards = trello.getAllCards()
+        self.allMembers = trello.getMembers()
 
     def get_files_from_directory(self, path_directory):
         for found_file in os.listdir(path_directory):
@@ -127,78 +155,79 @@ class DataBaseSystem:
             if os.path.isfile(full_path):
                 yield full_path
 
-    def free_votes(self, memberId):
-        return 0
+    def free_votes(self, member):
+        memberHash = GetHashMember(member.id, member.username)
         count = 0
-        for item in self.contracts:
-            if item.memberId == memberId:
-                if item.typeContract == 'VotingContract':
-                    count += 1
-                if item.typeContract == 'ClosingLectureContract':
-                    count -= 1
+        for i in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
+            if i.creator_address == memberHash:
+                count += i.parameters_contract[0]
         maxVotes = 2
         return maxVotes - count
 
-    def get_lecture_contract(self, trelloCardId):
-        for item in self.contracts:
-            if item.typeContract == 'LectureContract' and item.trelloCardId == trelloCardId:
+    def get_contract(self, contractId):
+        for item in self.transactions:
+            if item.type == 'Contract' and item.id == contractId:
                 return item
 
-    def get_member(self, trelloMemberId):
-        for item in self.contracts:
-            if item.typeContract == 'MemberContract' and item.trelloMemberId == trelloMemberId:
+    def get_lecture_contract(self, trelloCardId):
+        for item in self.transactions:
+            if item.type == 'Contract' and item.parameters_contract[0] == trelloCardId:
                 return item
+
+    def get_publication_contract(self, themeContractId):
+        for item in self.transactions:
+            if item.type == 'ChildContract' and item.parent_contract_id == themeContractId:
+                return item
+
+    def get_feedback(self, publicationContractId, member):
+        memberHash = GetHashMember(member.id, member.username)
+        hashContract = GetHashContract('feedback')
+        for item in self.transactions:
+            if item.type == 'ChildContract' and item.hash_contract == hashContract and item.parent_contract_id == publicationContractId and item.creator_address == memberHash:
+                return item
+
+
+    def get_card(self, trelloCardId):
+        for item in self.allCards:
+            if item.id == trelloCardId:
+                return item
+
+    def get_member(self, memberHash):
+        for item in self.allMembers:
+            if GetHashMember(item.id, item.username) == memberHash:
+                return item
+
+    def get_member_by_trello(self, trelloMemberId):
+        for item in self.allMembers:
+            if item.id == trelloMemberId:
+                return item
+
+    def get_voting_list(self):
+        hashThemeContract = GetHashContract('theme')
+        for item in GetOpenContracts(self.transactions, hashThemeContract):
+            if self.get_card(item.parameters_contract[0]).list_id == '59f86fde255ded6e9a366b22':
+                yield VotingModel(item.id, self.get_member(item.creator_address).full_name, self.get_card(item.parameters_contract[0]).name)
+
+    def vote(self, form, user):
+        for vote in form:
+            lecture = self.get_contract(vote)
+            member = self.get_member_by_trello(user.id)
+            contract = Vote(member.id, member.username, lecture.id)
+            appendTransaction(contract)
+            self.transactions.append(contract)
+
+    # temporary
 
     def get_voting_by_member_and_lecture(self, trelloCardId, trelloMemberId):
-        member = self.get_member(trelloMemberId)
+        member = self.get_member_by_trello(trelloMemberId)
         lecture = self.get_lecture_contract(trelloCardId)
         if member is None or lecture is None:
             return None
-        for item in self.contracts:
-            if item.typeContract == 'VotingContract' and member.id == item.memberContractId and lecture.id == item.lectureContractId:
+        hashVoteContract = GetHashContract('vote')
+        memberHash = GetHashMember(member.id, member.username)
+        for item in self.transactions:
+            if item.type == 'ChildContract' and item.hash_contract == hashVoteContract and memberHash == item.creator_address and lecture.id == item.parent_contract_id:
                 return item
-
-    def get_publication(self, lectureContractId):
-        for i in self.contracts:
-            if i.typeContract == 'PublicationContract' and i.lectureContractId == lectureContractId:
-                return i
-
-    def get_feedback(self, publicationContractId, memberContractId):
-        for i in self.contracts:
-            if i.typeContract == 'FeedbackContract' and i.publicationContractId == publicationContractId and i.memberContractId == memberContractId:
-                return i
-
-    def get_contract(self, typeContract, id):
-        for item in self.contracts:
-            if item.typeContract == typeContract and item.id == id:
-                return item
-
-    def get_contracts(self, typeContract):
-        for item in self.contracts:
-            if item.typeContract == typeContract:
-                yield item
-
-    def get_voting_list(self):
-        sortedContracts = sorted(self.contracts, key=sortContract)
-        for item in sortedContracts:
-            if item.typeContract == 'LectureContract':
-                result = False
-                for item2 in self.contracts:
-                    if item2.typeContract == 'CloseVotingContract' and item.id == item2.lectureContractId:
-                        result = True
-                        break
-                if not result:
-                    yield VotingModel(item.id, self.get_contract('MemberContract', item.ownerMemberContractId).trelloMemberFullName, item.trelloTitle)
-
-    def sync_members(self, trello):
-        listMembers = trello.getMembers()
-        for item in listMembers:
-            member = self.get_member(item.id)
-            if member is None:
-                contract = MemberContract(item.id, item.username, item.full_name)
-                appendContract(contract)
-                self.contracts.append(contract)
-
 
     def add_voting(self):
         temp = [('59f8cda85fad9eab697155e6','583ebed850e2f6dda2f0740e'),
@@ -232,12 +261,12 @@ class DataBaseSystem:
                 ('59f9ad8305380dffe0594299','55e6b1c8de29447a10503b4d')]
         for i in temp:
             lecture = self.get_lecture_contract(i[0])
-            member = self.get_member(i[1])
+            member = self.get_member_by_trello(i[1])
             voting = self.get_voting_by_member_and_lecture(i[0], i[1])
             if voting is None:
-                contract = VotingContract(member.id, lecture.id)
-                appendContract(contract)
-                self.contracts.append(contract)
+                contract = Vote(member.id, member.username, lecture.id)
+                appendTransaction(contract)
+                self.transactions.append(contract)
 
     def add_publication(self):
         temp = [('59f9539795bf402b0d745ded',
@@ -284,69 +313,36 @@ class DataBaseSystem:
         ('56166b31aad8642b07fc4035',	7	,7	,9	,9	,9 )])]
         for i in temp:
             lecture = self.get_lecture_contract(i[0])
-            publication = self.get_publication(lecture.id)
+            publication = self.get_publication_contract(lecture.id)
             if publication is None:
-                publication = PublicationContract(lecture.id)
-                appendContract(publication)
-                self.contracts.append(publication)
+                publication = CreatePublicationContract(lecture.creator_address, lecture.id)
+                appendTransaction(publication)
+                self.transactions.append(publication)
             for j in i[1]:
-                member = self.get_member(j[0])
-                feedback = self.get_feedback(publication.id, member.id)
+                member = self.get_member_by_trello(j[0])
+                feedback = self.get_feedback(publication.id, member)
                 if feedback is None:
-                    feedback = FeedbackContract(publication.id, member.id, j[1], j[2], j[3], j[4], j[5])
-                    appendContract(feedback)
-                    self.contracts.append(feedback)
+                    feedback = CreateFeedbackContract(member.id, member.username, publication.id, j[1], j[2], j[3], j[4], j[5])
+                    appendTransaction(feedback)
+                    self.transactions.append(feedback)
 
-    def vote(self, form, user):
-        for vote in form:
-            lecture = self.get_contract('LectureContract', vote)
-            member = self.get_member(user.id)
-            contract = VotingContract(member.id, lecture.id)
-            appendContract(contract)
-            self.contracts.append(contract)
 
-    def sync_lectures(self, trello):
-        listIncoming = trello.getAllCards()
+
+    def sync_lectures(self):
         # sync new lectures
-        for item in listIncoming:
+        for item in self.allCards:
             contract = self.get_lecture_contract(item.id)
             if contract is None:
                 if len(item.member_id) > 0:
-                    owner = self.get_member(item.member_id[0])
-                    if owner is not None:
-                        contract = LectureContract(owner.id, item.id, item.name)
-                        appendContract(contract)
-                        self.contracts.append(contract)
+                    member = self.get_member_by_trello(item.member_id[0])
+                    if member is not None:
+                        contract = CreateThemeContract(member.id, member.username, item.id)
+                        appendTransaction(contract)
+                        self.transactions.append(contract)
         # sync votes
         self.add_voting()
-        # close contracts
-        for item in listIncoming:
-            contract = self.get_lecture_contract(item.id)
-            if contract is not None and item.list_id != trello.listIncomingId:
-                result = False
-                for item in self.contracts:
-                    if item.typeContract == 'CloseVotingContract' and contract.id == item.lectureContractId:
-                        result = True
-                        break
-                if not result:
-                    closeContract = CloseVotingContract(contract.id)
-                    appendContract(closeContract)
-                    self.contracts.append(closeContract)
         # sync publication
         self.add_publication()
-        # sync publish
-        for item in listIncoming:
-            contract = self.get_lecture_contract(item.id)
-            if contract is not None and item.list_id == trello.listPublishedId:
-                result = False
-                for item in self.contracts:
-                    if item.typeContract == 'ClosingLectureContract' and contract.id == item.lectureContractId:
-                        result = True
-                        break
-                if not result:
-                    closeContract = ClosingLectureContract(contract.id)
-                    appendContract(closeContract)
-                    self.contracts.append(closeContract)
 
 
 

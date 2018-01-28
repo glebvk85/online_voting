@@ -4,7 +4,7 @@ from OnlineVoting.auth import make_authorization_url
 from flask import render_template, make_response, request, redirect, url_for
 from OnlineVoting import app
 from OnlineVoting.trello import TrelloProvider
-from OnlineVoting.blockchain import VotingContract, DataBaseSystem
+from OnlineVoting.blockchain import DataBaseSystem
 
 @app.route('/')
 @app.route('/home')
@@ -17,11 +17,9 @@ def home():
         trello.auth(token)
 
     returnUrl = request.base_url
-    db = DataBaseSystem()
+    db = DataBaseSystem(trello)
     incoming_cards = None
     if is_auth:
-        db.sync_members(trello)
-        db.sync_lectures(trello)
         incoming_cards = db.get_voting_list()
 
     return render_template(
@@ -43,10 +41,10 @@ def voting():
     else:
         return error("Unauthorized", None, False)
     user = trello.getAccountInfo()
-    db = DataBaseSystem()
-    free_votes = db.free_votes(user.id) + 2
-    if free_votes < len(request.form):
-        return error('Not enough votes', user, True)
+    db = DataBaseSystem(trello)
+    free_votes = db.free_votes(user)
+    #if free_votes < len(request.form):
+    #    return error('Not enough votes', user, True)
     db.vote(request.form, user)
     return render_template(
         'voting.html',
@@ -65,8 +63,11 @@ def process():
     else:
         return error("Unauthorized", None, False)
     user = trello.getAccountInfo()
-    db = DataBaseSystem()
-    list = db.get_contracts("MemberContract")
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+
+    db = DataBaseSystem(trello)
+    db.sync_lectures()
 
     return render_template(
         'system.html',
@@ -74,7 +75,6 @@ def process():
         header='System',
         is_auth = token is not None,
         debug_print = db.free_votes(user.id),
-        list = list,
         user = user
     )
 
@@ -86,3 +86,6 @@ def error(message, user, is_auth):
         message = message,
         user = user
     )
+
+def is_admin(username):
+    return username in set('gkucherenko')
