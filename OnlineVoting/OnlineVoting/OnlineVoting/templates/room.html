@@ -1,0 +1,17 @@
+{% extends "layout.html" %}
+
+{% block content %}
+
+
+{% if is_auth %}
+<h3>{{header}}</h3>
+
+{% for item in list %}
+<form action="{{ url_for('create_feedback') }}" method=post>
+    <input type="hidden" name={{item.id}}>{{item.themeName}}
+    <button type="submit">Create feedback!</button>
+</form>
+
+{% endfor %}
+{% endif %}
+{% endblock %}

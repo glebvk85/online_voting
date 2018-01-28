@@ -23,10 +23,10 @@
             </div>
             <div class="navbar-collapse collapse">
                 <ul class="nav navbar-nav">
-                    <!--<li><a href="{{ url_for('home') }}">Results</a></li>
-                    <li><a href="{{ url_for('voting') }}">Voting</a></li>-->
+                    <!--<li><a href="{{ url_for('voting') }}">Voting</a></li>-->
                     {% if is_auth %}
                     <li><a href="">{{user.full_name}}</a></li>
+                    <li><a href="{{ url_for('room') }}">My Room</a></li>
                     {% else %}
                     <li><a href="{{auth_url}}">Auth</a></li>
                     {% endif %}

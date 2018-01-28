@@ -43,8 +43,8 @@ def voting():
     user = trello.getAccountInfo()
     db = DataBaseSystem(trello)
     free_votes = db.free_votes(user)
-    #if free_votes < len(request.form):
-    #    return error('Not enough votes', user, True)
+    if free_votes < len(request.form):
+        return error('Not enough votes', user, True)
     db.vote(request.form, user)
     return render_template(
         'voting.html',
@@ -53,6 +53,51 @@ def voting():
         message='Your vote is accepted!',
         user = user
     )
+
+@app.route('/room')
+def room():
+    token = request.cookies.get('token')
+    is_auth = token is not None
+
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+
+    user = trello.getAccountInfo()
+    db = DataBaseSystem(trello)
+    themes = None
+    if is_auth:
+        themes = db.get_themes_by_user(user)
+
+    return render_template(
+        'room.html',
+        year=datetime.now().year,
+        is_auth = is_auth,
+        list = themes,
+        user = user
+    )
+
+@app.route('/create_feedback', methods=['POST'])
+def create_feedback():
+    token = request.cookies.get('token')
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+    user = trello.getAccountInfo()
+    db = DataBaseSystem(trello)
+    db.publication(request.form, user)
+    return render_template(
+        'create_feedback.html',
+        year=datetime.now().year,
+        is_auth = token is not None,
+        message='Page for feedback created!',
+        user = user
+    )
+
 
 @app.route('/system', methods=['GET'])
 def process():
@@ -74,7 +119,30 @@ def process():
         year=datetime.now().year,
         header='System',
         is_auth = token is not None,
-        debug_print = db.free_votes(user.id),
+        debug_print = db.free_votes(user),
+        user = user
+    )
+
+@app.route('/info', methods=['GET'])
+def info():
+    token = request.cookies.get('token')
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+    user = trello.getAccountInfo()
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+
+    db = DataBaseSystem(trello)
+
+    return render_template(
+        'info.html',
+        year=datetime.now().year,
+        header='System',
+        is_auth = token is not None,
+        list = db.get_info(),
         user = user
     )
 
@@ -88,4 +156,7 @@ def error(message, user, is_auth):
     )
 
 def is_admin(username):
-    return username in set('gkucherenko')
+    admins = set()
+    admins.add('gleb_kucherenko')
+    admins.add('evanchurov')
+    return username in admins
