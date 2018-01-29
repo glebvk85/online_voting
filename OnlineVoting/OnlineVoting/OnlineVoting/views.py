@@ -21,8 +21,10 @@ def home():
     returnUrl = request.base_url
     db = DataBaseSystem(trello)
     incoming_cards = None
+    user = None
     if is_auth:
         incoming_cards = db.get_voting_list()
+        user = trello.getAccountInfo()
 
     return render_template(
         'index.html',
@@ -31,7 +33,8 @@ def home():
         auth_url = make_authorization_url(returnUrl),
         is_auth = is_auth,
         cards = incoming_cards,
-        user = trello.getAccountInfo()
+        user = user,
+        count_vote = db.free_votes(user)
     )
 
 @app.route('/voting', methods=['POST'])
@@ -53,7 +56,8 @@ def voting():
         year=datetime.now().year,
         is_auth = token is not None,
         message='Your vote is accepted!',
-        user = user
+        user = user,
+        count_vote = db.free_votes(user)
     )
 
 @app.route('/room')
@@ -81,7 +85,8 @@ def room():
         is_auth = is_auth,
         themes = themes,
         feedbacks = db.get_new_publication(user),
-        user = user
+        user = user,
+        count_vote = db.free_votes(user)
     )
 
 @app.route('/create_feedback', methods=['POST'])
@@ -100,7 +105,8 @@ def create_feedback():
         year=datetime.now().year,
         is_auth = token is not None,
         message='Page for feedback created!',
-        user = user
+        user = user,
+        count_vote = db.free_votes(user)
     )
 
 def try_get_value(form, valueName):
@@ -123,7 +129,8 @@ def apply_feedback():
         year=datetime.now().year,
         is_auth = token is not None,
         message='Thanks for feedback!',
-        user = user
+        user = user,
+        count_vote = db.free_votes(user)
     )
 
 
@@ -141,7 +148,7 @@ def feedback():
     contract = db.get_contract(contract.parent_contract_id)
     if contract is None:
         return error("Publication not found", user, True)
-    card = db.get_card(contract.parameters_contract[0])
+    card = db.get_trello_card(contract.parameters_contract[0])
     return render_template(
         'feedback.html',
         year=datetime.now().year,
@@ -153,7 +160,8 @@ def feedback():
         title2 = 'Я могу применить полученные навыки и знания на практике для решения наших задач',
         title3 = 'Оцените качество изложения и наглядность информации',
         title4 = 'Оцените качество подготовки выступающих и глубину проработки темы',
-        title5 = 'Я бы рекомендовал эту публикацию своим коллегам, не участвовавшим в мероприятии'
+        title5 = 'Я бы рекомендовал эту публикацию своим коллегам, не участвовавшим в мероприятии',
+        count_vote = db.free_votes(user)
     )
 
 
@@ -178,7 +186,8 @@ def process():
         header='System',
         is_auth = token is not None,
         debug_print = db.free_votes(user),
-        user = user
+        user = user,
+        count_vote = db.free_votes(user)
     )
 
 @app.route('/info', methods=['GET'])
@@ -201,7 +210,8 @@ def info():
         header='System',
         is_auth = token is not None,
         list = db.get_info(),
-        user = user
+        user = user,
+        count_vote = db.free_votes(user)
     )
 
 def error(message, user, is_auth):

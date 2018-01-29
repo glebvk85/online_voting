@@ -7,7 +7,7 @@
 <h3>{{header}}</h3>
 
 {% for item in list %}
-{{item.time}}        <b>{{item.member}}</b>        {{item.action}}        <b>"{{item.data}}"</b><br>
+{{item.timestamp}}        <b>{{item.member}}</b>        {{item.action}}        <b>"{{item.data}}"</b><br>
 {% endfor %}
 {% endif %}
 {% endblock %}
