@@ -80,9 +80,17 @@ def GetHashMember(trelloMemberId, trelloMemberName):
     sha.update((str(trelloMemberId) + str(trelloMemberName)).encode('utf-8'))
     return sha.hexdigest()
 
+def RunContract(text):
+    complete = False
+    exec(text)
+    i = name_contract
+
 def GetHashContract(nameContract):
+    text_contract = None
+    with open(os.path.join('OnlineVoting', 'contracts', '{0}.py'.format(nameContract)), 'r') as f:
+        text_contract = f.read()
     sha = hasher.sha256()
-    sha.update((str(nameContract)).encode('utf-8'))
+    sha.update((str(text_contract)).encode('utf-8'))
     return sha.hexdigest()
 
 def CreateThemeContract(trelloMemberId, trelloMemberName, trelloCardId):
@@ -171,7 +179,7 @@ class DataBaseSystem:
         for i in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
             if i.creator_address == memberHash:
                 count += i.parameters_contract[0]
-        maxVotes = 23
+        maxVotes = 2
         return maxVotes - count
 
     def get_themes_by_user(self, member):

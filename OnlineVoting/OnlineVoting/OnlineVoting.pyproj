@@ -32,6 +32,18 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="OnlineVoting\blockchain.py" />
+    <Compile Include="OnlineVoting\contracts\feedback.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OnlineVoting\contracts\publication.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OnlineVoting\contracts\theme.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OnlineVoting\contracts\vote.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="OnlineVoting\database.py">
       <SubType>Code</SubType>
     </Compile>
