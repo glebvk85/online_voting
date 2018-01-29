@@ -271,7 +271,7 @@ class DataBaseSystem:
                 tmp += '👍'
             title = '({0}) {1}'.format(tmp, title)
             card.set_name(title)
-            card.comment('{0} voted'.format(user.full_name))
+            card.comment('👍')
 
 
     def publication(self, form, user):
@@ -421,7 +421,7 @@ class DataBaseSystem:
                     appendTransaction(feedback)
                     self.transactions.append(feedback)
     
-    # TODO: set dates for feedback, load contracts, my feedbacks, get author
+    # TODO: set dates for feedback, my feedbacks, get author
 
 
     def sync_lectures(self):
