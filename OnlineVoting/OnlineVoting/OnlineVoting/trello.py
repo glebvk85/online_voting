@@ -58,10 +58,12 @@ class TrelloProvider:
             return None
         return self.getBoard().get_list(listId).list_cards()
 
+
     def getAllCards(self):
         if not self.isAuth:
             return None
         return self.getBoard().all_cards()
+
 
     def getMember(self, memberId):
         if not self.isAuth:

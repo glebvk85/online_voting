@@ -170,7 +170,7 @@ class DataBaseSystem:
         for i in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
             if i.creator_address == memberHash:
                 count += i.parameters_contract[0]
-        maxVotes = 22
+        maxVotes = 23
         return maxVotes - count
 
     def get_themes_by_user(self, member):
@@ -248,6 +248,18 @@ class DataBaseSystem:
             contract = Vote(member.id, member.username, lecture.id)
             appendTransaction(contract)
             self.transactions.append(contract)
+            card = self.get_trello_card(lecture.parameters_contract[0])
+            title = card.name.lstrip('(👍) ')
+            cnt = 0
+            for item in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
+                if item.parent_contract_id == lecture.id:
+                    cnt += item.parameters_contract[0]
+            tmp = ''
+            for i in range(cnt):
+                tmp += '👍'
+            title = '({0}) {1}'.format(tmp, title)
+            card.set_name(title)
+
 
     def publication(self, form, user):
         for item in form:
@@ -396,7 +408,7 @@ class DataBaseSystem:
                     appendTransaction(feedback)
                     self.transactions.append(feedback)
     
-    # TODO: set dates for feedback, load contracts, show balance, my feedbacks, hands and comments to trello
+    # TODO: set dates for feedback, load contracts, my feedbacks, hands and comments to trello, get author
 
 
     def sync_lectures(self):
