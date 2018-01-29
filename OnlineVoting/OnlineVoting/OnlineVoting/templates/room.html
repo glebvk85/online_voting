@@ -8,6 +8,12 @@
 
 {% for item in themes %}
 <form action="{{ url_for('create_feedback') }}" method=post>
+    <!--<blockquote class="trello-card">
+        <a href="{{item.url}}">{{item.themeName}}</a>
+    </blockquote>
+    <script src="https://p.trellocdn.com/embed.min.js">
+        
+    </script>-->
     <input type="hidden" name={{item.id}}>{{item.themeName}}
     <button type="submit">Create feedback!</button>
 </form>
