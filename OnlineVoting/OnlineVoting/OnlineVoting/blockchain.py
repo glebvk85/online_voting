@@ -439,7 +439,7 @@ class DataBaseSystem:
         # sync votes
         self.add_voting()
         # sync publication
-        self.add_publication()
+        # self.add_publication()
 
 
 
