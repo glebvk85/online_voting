@@ -360,7 +360,7 @@ class DataBaseSystem:
             voting = self.get_voting_by_member_and_lecture(i[0], i[1])
             if voting is None:
                 contract = Vote(member.id, member.username, lecture.id)
-                contract.timestamp = date.datetime.strptime('09-10-2017 07:42:00', '%d-%m-%Y %H:%M:%S')
+                contract.timestamp = int(time.mktime(date.datetime.strptime('09-10-2017 07:42:00', '%d-%m-%Y %H:%M:%S').timetuple()))
                 appendTransaction(contract)
                 self.transactions.append(contract)
 
