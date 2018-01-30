@@ -25,7 +25,7 @@
                 <ul class="nav navbar-nav">
                     {% if is_auth %}
                     <li><a href="{{ url_for('home') }}">Vote</a></li>
-                    <li><a href="{{ url_for('room') }}">My Room</a></li>
+                    <li><a href="{{ url_for('room') }}">Feedback</a></li>
                     <li><a>{{user.full_name}}</a></li>
                     {% else %}
                     <li><a href="{{auth_url}}">Auth</a></li>
