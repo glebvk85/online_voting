@@ -125,6 +125,10 @@ class InfoModel:
         self.action = action
         self.data = data
 
+class PointModel:
+    def __init__(self, memberName, count):
+        self.memberName = memberName
+        self.count = count
 
 
 def GetOpenChildContracts(list, hashContract):
@@ -181,6 +185,16 @@ class DataBaseSystem:
                 count += i.parameters_contract[0]
         maxVotes = 2
         return maxVotes - count
+
+    def get_all_free_votes(self):
+        maxVotes = 2
+        votes = defaultdict()
+        for i in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
+            votes.setdefault(i.creator_address, []).append(i.parameters_contract[0])
+        for i in self.allMembers:
+            hashMember = GetHashMember(i.id, i.username)
+            votes.setdefault(hashMember, [])
+            yield PointModel(i.full_name, maxVotes - sum(votes[hashMember]))
 
     def get_themes_by_user(self, member):
         memberHash = GetHashMember(member.id, member.username)

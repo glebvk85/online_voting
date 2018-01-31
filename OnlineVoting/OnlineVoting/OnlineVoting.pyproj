@@ -64,6 +64,7 @@
   <ItemGroup>
     <Content Include="OnlineVoting\static\scripts\common.js" />
     <Content Include="OnlineVoting\templates\error.html" />
+    <Content Include="OnlineVoting\templates\dashboard.html" />
     <Content Include="OnlineVoting\templates\room.html" />
     <Content Include="OnlineVoting\templates\info.html" />
     <Content Include="OnlineVoting\templates\feedback.html" />

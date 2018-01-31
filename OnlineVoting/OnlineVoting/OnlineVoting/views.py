@@ -214,6 +214,28 @@ def info():
         count_vote = db.free_votes(user)
     )
 
+@app.route('/dashboard', methods=['GET'])
+def dashboard():
+    token = request.cookies.get('token')
+    trello = TrelloProvider()
+    if token is not None:
+        trello.auth(token)
+    else:
+        return error("Unauthorized", None, False)
+    user = trello.getAccountInfo()
+
+    db = DataBaseSystem(trello)
+
+    return render_template(
+        'dashboard.html',
+        year=datetime.now().year,
+        header='System',
+        is_auth = token is not None,
+        list = db.get_all_free_votes(),
+        user = user,
+        count_vote = db.free_votes(user)
+    )
+
 def error(message, user, is_auth):
     return render_template(
         'error.html',
