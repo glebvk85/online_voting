@@ -7,7 +7,7 @@
 <h3>{{header}}</h3>
 
 {% for item in list %}
-{{item.memberName}}        <b>{{item.count}}</b><br>
+{{item.memberName}} ({{item.username}}): <b>{{item.count}}</b><br>
 {% endfor %}
 {% endif %}
 {% endblock %}

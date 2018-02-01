@@ -38,7 +38,6 @@ class TrelloProvider:
         user = self.client.fetch_json('tokens/{0}?token={0}&key={1}'.format(self.token, self.apiKey))
         return self.client.get_member(user['idMember'])
 
-
     def getCard(self, cardId):
         if not self.isAuth:
             return None

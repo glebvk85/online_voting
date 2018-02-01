@@ -126,7 +126,8 @@ class InfoModel:
         self.data = data
 
 class PointModel:
-    def __init__(self, memberName, count):
+    def __init__(self, username, memberName, count):
+        self.username = username
         self.memberName = memberName
         self.count = count
 
@@ -194,7 +195,7 @@ class DataBaseSystem:
         for i in self.allMembers:
             hashMember = GetHashMember(i.id, i.username)
             votes.setdefault(hashMember, [])
-            yield PointModel(i.full_name, maxVotes - sum(votes[hashMember]))
+            yield PointModel(i.username, i.full_name, maxVotes - sum(votes[hashMember]))
 
     def get_themes_by_user(self, member):
         memberHash = GetHashMember(member.id, member.username)
@@ -325,6 +326,35 @@ class DataBaseSystem:
                 data = "feedback - [{0}]".format(points)
                 yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
     # temporary
 
     def get_voting_by_member_and_lecture(self, trelloCardId, trelloMemberId):
@@ -443,7 +473,6 @@ class DataBaseSystem:
                     self.transactions.append(feedback)
     
     # TODO: my feedbacks, get author
-
 
     def sync_lectures(self):
         # sync new lectures
