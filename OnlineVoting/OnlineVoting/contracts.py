@@ -1,4 +1,6 @@
 from OnlineVoting.transactions import *
+import hashlib as hasher
+
 
 def CreateThemeContract(trelloMemberId, trelloMemberName, trelloCardId):
     return Contract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('theme'), [trelloCardId])
@@ -59,7 +61,7 @@ def GetHashMember(trelloMemberId, trelloMemberName):
 def RunContract(text):
     complete = False
     exec(text)
-    i = name_contract
+    #i = name_contract
 
 
 def GetHashContract(nameContract):
