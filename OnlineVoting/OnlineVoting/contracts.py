@@ -1,3 +1,5 @@
+from OnlineVoting.transactions import *
+
 def CreateThemeContract(trelloMemberId, trelloMemberName, trelloCardId):
     return Contract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('theme'), [trelloCardId])
 

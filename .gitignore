@@ -107,3 +107,5 @@ ENV/
 /OnlineVoting/OnlineVoting/transactions/*
 /OnlineVoting/OnlineVoting/obj/Release/*
 /OnlineVoting/OnlineVoting/.idea/*
+/OnlineVoting/transactions/*
+/OnlineVoting/.idea/*
