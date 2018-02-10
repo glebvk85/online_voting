@@ -1,5 +1,6 @@
 from trello import TrelloClient
 
+
 class TrelloProvider:
 
     apiKey = '19f6350892758decb4ede6ae63be78b4'
@@ -17,67 +18,46 @@ class TrelloProvider:
     isAuth = False
     members = None
 
+    def __init__(self):
+        self.token = None
+        self.isAuth = False
+        self.client = None
 
     def auth(self, token):
         self.client = TrelloClient(api_key=self.apiKey,
-                                  api_secret = self.apiSecret,
-                                  token = token)
+                                  api_secret=self.apiSecret,
+                                  token=token)
         self.token = token
         self.isAuth = True
 
-
-    def getBoard(self):
+    def get_board(self):
         if not self.isAuth:
             return None
         return self.client.get_board(self.boardId)
 
-
-    def getAccountInfo(self):
+    def get_account_info(self):
         if not self.isAuth:
             return None
         user = self.client.fetch_json('tokens/{0}?token={0}&key={1}'.format(self.token, self.apiKey))
         return self.client.get_member(user['idMember'])
 
-    def getCard(self, cardId):
+    def get_card(self, cardId):
         if not self.isAuth:
             return None
         return self.client.get_card(cardId)
 
-
-    def getIncomingCards(self):
-        return self._getListCards(self.listIncomingId)
-
-
-    def getPublishedCards(self):
-        return self._getListCards(self.listPublishedId)
-
-
-    def _getListCards(self, listId):
+    def get_all_cards(self):
         if not self.isAuth:
             return None
-        return self.getBoard().get_list(listId).list_cards()
+        return self.get_board().all_cards()
 
-
-    def getAllCards(self):
-        if not self.isAuth:
-            return None
-        return self.getBoard().all_cards()
-
-
-    def getMember(self, memberId):
+    def get_member(self, memberId):
         if not self.isAuth:
             return None
         return self.client.get_member(memberId)
 
-
-    def getMembers(self):
+    def get_all_members(self):
         if not self.isAuth:
             return None
-        return self.getBoard().get_members()
-
-
-
-
-
-
+        return self.get_board().get_members()
 

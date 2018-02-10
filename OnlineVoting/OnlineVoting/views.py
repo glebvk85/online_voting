@@ -208,7 +208,7 @@ def initialize():
         return False, None, None, None
     trello = TrelloProvider()
     trello.auth(token)
-    user = trello.getAccountInfo()
+    user = trello.get_account_info()
     db = DataBaseSystem(trello)
     return is_auth, trello, user, db
 

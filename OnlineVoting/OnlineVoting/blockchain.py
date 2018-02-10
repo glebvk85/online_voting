@@ -15,8 +15,8 @@ class DataBaseSystem:
         self.transactions = []
         for transactionPath in self.get_files_from_directory('transactions'):
             self.transactions.append(read_transaction(transactionPath))
-        self.allCards = trello.getAllCards()
-        self.allMembers = trello.getMembers()
+        self.allCards = trello.get_all_cards()
+        self.allMembers = trello.get_all_members()
 
     def get_files_from_directory(self, path_directory):
         for found_file in os.listdir(path_directory):
