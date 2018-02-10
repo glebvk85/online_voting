@@ -9,3 +9,5 @@ import OnlineVoting.auth
 import OnlineVoting.database
 import OnlineVoting.trello
 import OnlineVoting.blockchain
+import OnlineVoting.contracts
+import OnlineVoting.models

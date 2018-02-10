@@ -47,6 +47,12 @@
     <Compile Include="OnlineVoting\database.py">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="OnlineVoting\models.py">
+      <SubType>Code</SubType>
+    </Compile>
+    <Compile Include="OnlineVoting\transactions.py">
+      <SubType>Code</SubType>
+    </Compile>
     <Compile Include="OnlineVoting\trello.py" />
     <Compile Include="runserver.py" />
     <Compile Include="OnlineVoting\__init__.py" />
