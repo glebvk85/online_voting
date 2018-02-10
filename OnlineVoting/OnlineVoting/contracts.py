@@ -1,29 +1,29 @@
 from OnlineVoting.transactions import *
-import hashlib as hasher
+import hashlib
 
 
-def CreateThemeContract(trelloMemberId, trelloMemberName, trelloCardId):
-    return Contract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('theme'), [trelloCardId])
+def create_theme_contract(trelloMemberId, trelloMemberName, trelloCardId):
+    return Contract(get_hash_member(trelloMemberId, trelloMemberName), get_hash_contract('theme'), [trelloCardId])
 
 
-def Vote(trelloMemberId, trelloMemberName, contractId):
-    return ChildContract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('vote'), contractId, [1])
+def vote(trelloMemberId, trelloMemberName, contractId):
+    return ChildContract(get_hash_member(trelloMemberId, trelloMemberName), get_hash_contract('vote'), contractId, [1])
 
 
-def CreatePublicationContract(memberHash, contractId):
-    return ChildContract(memberHash, GetHashContract('publication'), contractId, [])
+def create_publication_contract(memberHash, contractId):
+    return ChildContract(memberHash, get_hash_contract('publication'), contractId, [])
 
 
-def CreateFeedbackContract(trelloMemberId, trelloMemberName, contractId, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend):
-    return ChildContract(GetHashMember(trelloMemberId, trelloMemberName), GetHashContract('feedback'), contractId, [themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend])
+def create_feedback_contract(trelloMemberId, trelloMemberName, contractId, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend):
+    return ChildContract(get_hash_member(trelloMemberId, trelloMemberName), get_hash_contract('feedback'), contractId, [themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend])
 
 
-def CloseThemeContract(trelloMemberId, trelloMemberName, trelloCardId):
-    return ClosingContract(GetHashMember(trelloMemberId, trelloMemberName), contractId, [])
+def close_theme_contract(trelloMemberId, trelloMemberName, trelloCardId):
+    return ClosingContract(get_hash_member(trelloMemberId, trelloMemberName), contractId, [])
 
 
-def GetOpenChildContracts(list, hashContract):
-    sortedList = sorted(list, key=sortTransaction)
+def get_open_child_contracts(list, hashContract):
+    sortedList = sorted(list, key=sort_transaction)
     contracts = []
     closedContracts = set()
     for item in sortedList:
@@ -37,8 +37,8 @@ def GetOpenChildContracts(list, hashContract):
             yield item
 
 
-def GetOpenContracts(list, hashContract):
-    sortedList = sorted(list, key=sortTransaction)
+def get_open_contracts(list, hashContract):
+    sortedList = sorted(list, key=sort_transaction)
     contracts = []
     closedContracts = set()
     for item in sortedList:
@@ -52,23 +52,22 @@ def GetOpenContracts(list, hashContract):
             yield item
 
 
-def GetHashMember(trelloMemberId, trelloMemberName):
-    sha = hasher.sha256()
+def get_hash_member(trelloMemberId, trelloMemberName):
+    sha = hashlib.sha256()
     sha.update((str(trelloMemberId) + str(trelloMemberName)).encode('utf-8'))
     return sha.hexdigest()
 
 
-def RunContract(text):
+def run_contract(text):
     complete = False
     exec(text)
     #i = name_contract
 
 
-def GetHashContract(nameContract):
-    text_contract = None
-    with open(os.path.join('OnlineVoting', 'contracts', '{0}.py'.format(nameContract)), 'r') as f:
+def get_hash_contract(nameContract):
+    with open(os.path.join('OnlineVoting', 'blockchain-contracts', '{0}.py'.format(nameContract)), 'r') as f:
         text_contract = f.read()
-    sha = hasher.sha256()
+    sha = hashlib.sha256()
     sha.update((str(text_contract)).encode('utf-8'))
     return sha.hexdigest()
 

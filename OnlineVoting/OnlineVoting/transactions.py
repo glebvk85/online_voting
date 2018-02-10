@@ -1,18 +1,21 @@
 import os  
 import json
+from uuid import uuid4
+import datetime
+import time
 
 
-def appendTransaction(transaction):
+def append_transaction(transaction):
     with open(os.path.join('transactions', transaction.id), 'w', encoding='utf8') as f:
         json.dump(transaction.as_json(), f, ensure_ascii=False)
 
 
-def readTransaction(path_file):
+def read_transaction(path_file):
     with open(path_file, 'r', encoding='utf8') as f:
         return Transaction(j = f)
 
 
-def sortTransaction(contract):
+def sort_transaction(contract):
     return contract.timestamp
 
 
@@ -21,7 +24,7 @@ class Transaction:
         if version is not None:
             self.id = str(uuid4())
             self.type =  self.__class__.__name__
-            self.timestamp = int(time.mktime(date.datetime.now().timetuple()))
+            self.timestamp = int(time.mktime(datetime.datetime.now().timetuple()))
             self.version = version
         elif j is not None:
             self.__dict__ = json.load(j)

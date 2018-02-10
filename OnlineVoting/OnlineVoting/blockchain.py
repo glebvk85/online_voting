@@ -14,7 +14,7 @@ class DataBaseSystem:
     def __init__(self, trello):
         self.transactions = []
         for transactionPath in self.get_files_from_directory('transactions'):
-            self.transactions.append(readTransaction(transactionPath))
+            self.transactions.append(read_transaction(transactionPath))
         self.allCards = trello.getAllCards()
         self.allMembers = trello.getMembers()
 
@@ -27,9 +27,9 @@ class DataBaseSystem:
     def free_votes(self, member):
         if member is None:
             return None
-        memberHash = GetHashMember(member.id, member.username)
+        memberHash = get_hash_member(member.id, member.username)
         count = 0
-        for i in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
+        for i in get_open_child_contracts(self.transactions, get_hash_contract('vote')):
             if i.creator_address == memberHash:
                 count += i.parameters_contract[0]
         maxVotes = 2
@@ -38,16 +38,16 @@ class DataBaseSystem:
     def get_all_free_votes(self):
         maxVotes = 2
         votes = defaultdict()
-        for i in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
+        for i in get_open_child_contracts(self.transactions, get_hash_contract('vote')):
             votes.setdefault(i.creator_address, []).append(i.parameters_contract[0])
         for i in self.allMembers:
-            hashMember = GetHashMember(i.id, i.username)
+            hashMember = get_hash_member(i.id, i.username)
             votes.setdefault(hashMember, [])
             yield PointModel(i.username, i.full_name, maxVotes - sum(votes[hashMember]))
 
     def get_themes_by_user(self, member):
-        memberHash = GetHashMember(member.id, member.username)
-        contracts = GetOpenContracts(self.transactions, GetHashContract('theme'))
+        memberHash = get_hash_member(member.id, member.username)
+        contracts = get_open_contracts(self.transactions, get_hash_contract('theme'))
         for item in contracts:
             if item.creator_address == memberHash:
                 card = self.get_trello_card(item.parameters_contract[0])
@@ -59,20 +59,20 @@ class DataBaseSystem:
                 return item
 
     def get_lecture_contract(self, trelloCardId):
-        hashContract = GetHashContract('theme')
+        hashContract = get_hash_contract('theme')
         for item in self.transactions:
             if item.type == 'Contract' and item.parameters_contract[0] == trelloCardId and item.hash_contract == hashContract:
                 return item
 
     def get_publication_contract(self, themeContractId):
-        hashContract = GetHashContract('publication')
+        hashContract = get_hash_contract('publication')
         for item in self.transactions:
             if item.type == 'ChildContract' and item.parent_contract_id == themeContractId and item.hash_contract == hashContract:
                 return item
 
     def get_feedback(self, publicationContractId, member):
-        memberHash = GetHashMember(member.id, member.username)
-        hashContract = GetHashContract('feedback')
+        memberHash = get_hash_member(member.id, member.username)
+        hashContract = get_hash_contract('feedback')
         for item in self.transactions:
             if item.type == 'ChildContract' and item.hash_contract == hashContract and item.parent_contract_id == publicationContractId and item.creator_address == memberHash:
                 return item
@@ -84,7 +84,7 @@ class DataBaseSystem:
 
     def get_trello_member(self, memberHash):
         for item in self.allMembers:
-            if GetHashMember(item.id, item.username) == memberHash:
+            if get_hash_member(item.id, item.username) == memberHash:
                 return item
 
     def get_trello_member_by_trello_id(self, trelloMemberId):
@@ -93,20 +93,20 @@ class DataBaseSystem:
                 return item
 
     def get_voting_list(self):
-        hashThemeContract = GetHashContract('theme')
-        for item in GetOpenContracts(self.transactions, hashThemeContract):
+        hashThemeContract = get_hash_contract('theme')
+        for item in get_open_contracts(self.transactions, hashThemeContract):
             if self.get_trello_card(item.parameters_contract[0]).list_id == '59f86fde255ded6e9a366b22':
                 card = self.get_trello_card(item.parameters_contract[0])
                 yield VotingModel(item.id, self.get_trello_member(item.creator_address).full_name, card.name, item.timestamp, card.url)
 
     def get_new_publication(self, user):
         member = self.get_trello_member_by_trello_id(user.id)
-        memberHash = GetHashMember(member.id, member.username)
-        hashPublicationContract = GetHashContract('publication')
-        hashFeedbackContract = GetHashContract('feedback')
-        for item in GetOpenChildContracts(self.transactions, hashPublicationContract):
+        memberHash = get_hash_member(member.id, member.username)
+        hashPublicationContract = get_hash_contract('publication')
+        hashFeedbackContract = get_hash_contract('feedback')
+        for item in get_open_child_contracts(self.transactions, hashPublicationContract):
             found = False
-            feedbacks = GetOpenChildContracts(self.transactions, hashFeedbackContract)
+            feedbacks = get_open_child_contracts(self.transactions, hashFeedbackContract)
             for j in feedbacks:
                 if j.parent_contract_id == item.id and memberHash == j.creator_address:
                     found = True
@@ -120,13 +120,13 @@ class DataBaseSystem:
         for item in form:
             lecture = self.get_contract(item)
             member = self.get_trello_member_by_trello_id(user.id)
-            contract = Vote(member.id, member.username, lecture.id)
-            appendTransaction(contract)
+            contract = vote(member.id, member.username, lecture.id)
+            append_transaction(contract)
             self.transactions.append(contract)
             card = self.get_trello_card(lecture.parameters_contract[0])
             title = card.name.lstrip('(👍) ')
             cnt = 0
-            for item in GetOpenChildContracts(self.transactions, GetHashContract('vote')):
+            for item in get_open_child_contracts(self.transactions, get_hash_contract('vote')):
                 if item.parent_contract_id == lecture.id:
                     cnt += item.parameters_contract[0]
             tmp = ''
@@ -141,23 +141,23 @@ class DataBaseSystem:
         for item in form:
             lecture = self.get_contract(item)
             member = self.get_trello_member_by_trello_id(user.id)
-            contract = CreatePublicationContract(GetHashMember(member.id, member.username), lecture.id)
-            appendTransaction(contract)
+            contract = create_publication_contract(get_hash_member(member.id, member.username), lecture.id)
+            append_transaction(contract)
             self.transactions.append(contract)
 
     def feedback(self, contractId, user, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend):
         lecture = self.get_contract(contractId)
         member = self.get_trello_member_by_trello_id(user.id)
-        contract = CreateFeedbackContract(member.id, member.username, lecture.id, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend)
-        appendTransaction(contract)
+        contract = create_feedback_contract(member.id, member.username, lecture.id, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend)
+        append_transaction(contract)
         self.transactions.append(contract)
 
     def get_info(self):
-        sortedList = sorted(self.transactions, key=sortTransaction)
-        hashThemeContract = GetHashContract('theme')
-        hashVoteContract = GetHashContract('vote')
-        hashPublicationContract = GetHashContract('publication')
-        hashFeedbackContract = GetHashContract('feedback')
+        sortedList = sorted(self.transactions, key=sort_transaction)
+        hashThemeContract = get_hash_contract('theme')
+        hashVoteContract = get_hash_contract('vote')
+        hashPublicationContract = get_hash_contract('publication')
+        hashFeedbackContract = get_hash_contract('feedback')
         for item in sortedList:
             if item.hash_contract == hashThemeContract:
                 yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, 'create theme', self.get_trello_card(item.parameters_contract[0]).name)
@@ -185,9 +185,9 @@ class DataBaseSystem:
                     if member is not None:
                         item.fetch_actions()
                         print(item.actions)
-                        contract = CreateThemeContract(member.id, member.username, item.id)
+                        contract = create_theme_contract(member.id, member.username, item.id)
                         contract.timestamp = int(time.mktime(item.card_created_date.timetuple())) 
-                        appendTransaction(contract)
+                        append_transaction(contract)
                         self.transactions.append(contract)
 
 
