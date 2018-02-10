@@ -32,18 +32,7 @@
       <SubType>Code</SubType>
     </Compile>
     <Compile Include="OnlineVoting\blockchain.py" />
-    <Compile Include="OnlineVoting\contracts\feedback.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OnlineVoting\contracts\publication.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OnlineVoting\contracts\theme.py">
-      <SubType>Code</SubType>
-    </Compile>
-    <Compile Include="OnlineVoting\contracts\vote.py">
-      <SubType>Code</SubType>
-    </Compile>
+    <Compile Include="OnlineVoting\contracts.py" />
     <Compile Include="OnlineVoting\database.py">
       <SubType>Code</SubType>
     </Compile>
@@ -60,7 +49,6 @@
   </ItemGroup>
   <ItemGroup>
     <Folder Include="OnlineVoting\" />
-    <Folder Include="OnlineVoting\contracts\" />
     <Folder Include="OnlineVoting\static\" />
     <Folder Include="OnlineVoting\static\content\" />
     <Folder Include="OnlineVoting\static\fonts\" />

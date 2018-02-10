@@ -11,3 +11,4 @@ import OnlineVoting.trello
 import OnlineVoting.blockchain
 import OnlineVoting.contracts
 import OnlineVoting.models
+import OnlineVoting.transactions

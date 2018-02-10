@@ -1,13 +1,13 @@
-import hashlib as hasher
 import datetime as date
 import json
 import time
 import os  
 from uuid import uuid4
 from collections import defaultdict
-from transactions import *
-from contracts import *
-from models import *
+from OnlineVoting.blockchain import *
+from OnlineVoting.contracts import *
+from OnlineVoting.models import *
+from OnlineVoting.transactions import *
 
 
 class DataBaseSystem:
