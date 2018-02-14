@@ -5,7 +5,7 @@ import datetime
 import time
 
 
-def append_transaction(transaction):
+def write_transaction(transaction):
     with open(os.path.join('transactions', transaction.id), 'w', encoding='utf8') as f:
         json.dump(transaction.as_json(), f, ensure_ascii=False)
 

@@ -21,7 +21,6 @@ def create_feedback_contract(trelloMemberId, trelloMemberName, contractId, theme
 def close_theme_contract(trelloMemberId, trelloMemberName, trelloCardId):
     return ClosingContract(get_hash_member(trelloMemberId, trelloMemberName), contractId, [])
 
-
 def get_open_child_contracts(list, hashContract):
     sortedList = sorted(list, key=sort_transaction)
     contracts = []

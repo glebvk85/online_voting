@@ -115,7 +115,7 @@ class DataBaseSystem:
             lecture = self.get_contract(item)
             member = self.get_trello_member_by_trello_id(user.id)
             contract = vote(member.id, member.username, lecture.id)
-            append_transaction(contract)
+            write_transaction(contract)
             self.transactions.append(contract)
             card = self.get_trello_card(lecture.parameters_contract[0])
             title = card.name.lstrip('(👍) ')
@@ -136,14 +136,14 @@ class DataBaseSystem:
             lecture = self.get_contract(item)
             member = self.get_trello_member_by_trello_id(user.id)
             contract = create_publication_contract(get_hash_member(member.id, member.username), lecture.id)
-            append_transaction(contract)
+            write_transaction(contract)
             self.transactions.append(contract)
 
     def feedback(self, contractId, user, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend):
         lecture = self.get_contract(contractId)
         member = self.get_trello_member_by_trello_id(user.id)
         contract = create_feedback_contract(member.id, member.username, lecture.id, themeIsActual, canApply, qualityInformation, preparednessAuthor, canRecommend)
-        append_transaction(contract)
+        write_transaction(contract)
         self.transactions.append(contract)
 
     def get_info(self):
@@ -181,8 +181,17 @@ class DataBaseSystem:
                         print(item.actions)
                         contract = create_theme_contract(member.id, member.username, item.id)
                         contract.timestamp = int(time.mktime(item.card_created_date.timetuple())) 
-                        append_transaction(contract)
+                        write_transaction(contract)
                         self.transactions.append(contract)
+        # update contracts
+        for item in self.transactions:
+            old_hashes = {'86b1e91ae158671c784422216426ac7e50cd14412049322609cee2448c865c15' : 'feedback',
+                          '90e8255cf28c2979b69f2a91439ebd1b765f46884de2ef7d4653e71af6c6b060' : 'publication',
+                          'a96a59ffd294d425a433b14657d5b6ea1a6215f809f8a849e045dc06e0b11d09' : 'theme',
+                          'eec62090053d8bd962da5993d600a0b2a0f9836e194f315903a5f9a0ed6dab7c' : 'vote',
+                          }
+            item.hash_contract = get_hash_contract(old_hashes[item.hash_contract])
+            write_transaction(item)
 
 
 
