@@ -5,8 +5,8 @@ try:
     investors
 except NameError: investors = []
 try:
-    sum_of_votes
-except NameError: sum_of_votes = 0
+    votes
+except NameError: votes = []
 
-sum_of_votes += parameters[1]
+votes.append(parameters[0])
 investors.append(owner_address)

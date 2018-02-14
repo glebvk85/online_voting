@@ -3,6 +3,9 @@ import json
 from uuid import uuid4
 import datetime
 import time
+from collections import namedtuple
+
+TransferInfo = namedtuple('TransferInfo', ['from_address', 'to_address', 'count'])
 
 
 def write_transaction(transaction):
@@ -43,11 +46,9 @@ class Transaction:
 
 
 class Transfer(Transaction):
-    def __init__(self, from_address, to_address, count):
+    def __init__(self, transfers):
         super(Transfer, self).__init__(version = 1)
-        self.from_address = from_address
-        self.to_address = to_address
-        self.count = count
+        self.transfers = transfers
 
     def as_json(self):
         return super(Transfer, self).as_json()

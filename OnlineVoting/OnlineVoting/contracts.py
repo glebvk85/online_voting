@@ -21,6 +21,9 @@ def create_feedback_contract(trelloMemberId, trelloMemberName, contractId, theme
 def close_theme_contract(trelloMemberId, trelloMemberName, trelloCardId):
     return ClosingContract(get_hash_member(trelloMemberId, trelloMemberName), contractId, [])
 
+def create_pay(transfers):
+    return Transfer(transfers)
+
 def get_open_child_contracts(list, hashContract):
     sortedList = sorted(list, key=sort_transaction)
     contracts = []
@@ -56,22 +59,13 @@ def get_hash_member(trelloMemberId, trelloMemberName):
     sha.update((str(trelloMemberId) + str(trelloMemberName)).encode('utf-8'))
     return sha.hexdigest()
 
-
-def run_contract(text, parameters_contract, owner_contract_address):
-    complete = False
-    need_close = False
-    parameters = parameters_contract
-    owner_address = owner_contract_address
-    exec(text)
-    if need_close:
-        if complete:
-            # TODO: create close contract
-            pass
-
-
-def get_hash_contract(nameContract):
-    with open(os.path.join('OnlineVoting', 'blockchain-contracts', '{0}.py'.format(nameContract)), 'r') as f:
+def read_blockchain_contract(name_contract):
+    with open(os.path.join('OnlineVoting', 'blockchain-contracts', '{0}.py'.format(name_contract)), 'r') as f:
         text_contract = f.read()
+    return text_contract
+
+def get_hash_contract(name_contract):
+    text_contract = read_blockchain_contract(name_contract)
     sha = hashlib.sha256()
     sha.update((str(text_contract)).encode('utf-8'))
     return sha.hexdigest()
