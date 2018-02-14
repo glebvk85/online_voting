@@ -19,6 +19,13 @@ def sort_transaction(contract):
     return contract.timestamp
 
 
+def get_files_from_directory(path_directory):
+    for found_file in os.listdir(path_directory):
+        full_path = os.path.join(path_directory, found_file)
+        if os.path.isfile(full_path):
+            yield full_path
+
+
 class Transaction:
     def __init__(self, version = None, j = None):
         if version is not None:

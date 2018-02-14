@@ -58,10 +58,16 @@ def get_hash_member(trelloMemberId, trelloMemberName):
     return sha.hexdigest()
 
 
-def run_contract(text):
+def run_contract(text, parameters_contract, owner_contract_address):
     complete = False
+    need_close = False
+    parameters = parameters_contract
+    owner_address = owner_contract_address
     exec(text)
-    #i = name_contract
+    if need_close:
+        if complete:
+            # TODO: create close contract
+            pass
 
 
 def get_hash_contract(nameContract):

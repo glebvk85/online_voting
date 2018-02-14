@@ -13,16 +13,10 @@ from OnlineVoting.transactions import *
 class DataBaseSystem:
     def __init__(self, trello):
         self.transactions = []
-        for transactionPath in self.get_files_from_directory('transactions'):
+        for transactionPath in get_files_from_directory('transactions'):
             self.transactions.append(read_transaction(transactionPath))
         self.allCards = trello.get_all_cards()
         self.allMembers = trello.get_all_members()
-
-    def get_files_from_directory(self, path_directory):
-        for found_file in os.listdir(path_directory):
-            full_path = os.path.join(path_directory, found_file)
-            if os.path.isfile(full_path):
-                yield full_path
 
     def free_votes(self, member):
         if member is None:
