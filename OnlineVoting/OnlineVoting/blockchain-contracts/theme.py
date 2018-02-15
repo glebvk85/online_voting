@@ -2,22 +2,14 @@ name_contract = 'theme'
 version_contract = 1
 
 need_close = True
+theme_finished = get_value(variables, 'theme_finished', False)
 complete = theme_finished
 
 if complete:
-    try:
-        investors
-    except NameError: investors = []
-    try:
-        speakers
-    except NameError: speakers = []
-    try:
-        votes
-    except NameError: votes = []
-    try:
-        feedbacks
-    except NameError:
-        feedbacks = []
+    investors = get_value(variables, 'investors', [])
+    speakers = get_value(variables, 'speakers', [])
+    votes = get_value(variables, 'votes', [])
+    feedbacks = get_value(variables, 'feedbacks', [])
 
     columns = []
     for item in feedbacks:
@@ -33,13 +25,14 @@ if complete:
     count_of_speakers = len(speakers)
     count_of_investors = len(investors)
     total_bonus = sum_of_votes + sum_of_feedbacks
-    if count_of_speakers <= count_of_investors:
-        bonus_speaker = total_bonus / (count_of_speakers + count_of_investors)
-        bonus_investor = bonus_speaker
-    else:
-        bonus_speaker = (total_bonus / 2) / count_of_speakers
-        bonus_investor = (total_bonus / 2) / count_of_investors
-    for item in investors:
-        pay(pays, None, item, bonus_investor)
-    for item in speakers:
-        pay(pays, None, item, bonus_speaker)
+    if count_of_speakers + count_of_investors != 0:
+        if count_of_speakers <= count_of_investors:
+            bonus_speaker = total_bonus / (count_of_speakers + count_of_investors)
+            bonus_investor = bonus_speaker
+        else:
+            bonus_speaker = 0 if count_of_speakers == 0 else (total_bonus / 2) / count_of_speakers
+            bonus_investor = 0 if count_of_investors == 0 else (total_bonus / 2) / count_of_investors
+        for item in investors:
+            pay(variables['pays'], None, item, bonus_investor)
+        for item in speakers:
+            pay(variables['pays'], None, item, bonus_speaker)

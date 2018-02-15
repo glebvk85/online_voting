@@ -1,8 +1,5 @@
 name_contract = 'feedback'
 version_contract = 1
 
-try:
-    feedbacks
-except NameError: feedbacks = []
-
+feedbacks = get_value(variables, 'feedbacks', [])
 feedbacks.append(parameters)
