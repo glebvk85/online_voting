@@ -219,8 +219,8 @@ def is_admin(username):
     return username in admins
 
 
-def try_get_value(form, valueName):
-    return form[valueName] if valueName in form else 0
+def try_get_value(form, value_name):
+    return form[value_name] if value_name in form else 0
 
 
 def initialize():
