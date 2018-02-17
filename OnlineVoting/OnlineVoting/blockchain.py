@@ -153,6 +153,7 @@ class DataBaseSystem:
         write_transaction(contract)
         self.transactions.append(contract)
 
+
     def get_info(self):
         sorted_list = sorted(self.transactions, key=sort_transaction)
         hash_theme_contract = get_hash_contract('theme')

@@ -1,4 +1,4 @@
-from OnlineVoting.contracts import read_blockchain_contract, create_pay
+from OnlineVoting.contracts import read_blockchain_contract, create_pay, get_hash_contract
 from OnlineVoting.transactions import TransferInfo
 import statistics
 
@@ -20,6 +20,13 @@ def median(items):
 
 
 def get_code_contract(contract_hash):
+    hashes = {}
+    hashes[get_hash_contract('feedback')] = 'feedback'
+    hashes[get_hash_contract('publication')] = 'publication'
+    hashes[get_hash_contract('speaker')] = 'speaker'
+    hashes[get_hash_contract('theme')] = 'theme'
+    hashes[get_hash_contract('vote')] = 'vote'
+
     if contract_hash == '10555f55a860fe2309bd6b009c86f1b1415cae99102bf62fb1d1372214706e6b':
         return read_blockchain_contract('theme')
     if contract_hash == '10555f55a860fe2309bd6b009c86f1b1415cae99102bf62fb1d1372214706e6b':
@@ -28,7 +35,8 @@ def get_code_contract(contract_hash):
         return read_blockchain_contract('feedback')
     if contract_hash == '5e84382ff2b6c1a38e26d56c18346c9fb097ff538135efc91695f64078d24ae4':
         return read_blockchain_contract('vote')
-    return ''
+
+    return read_blockchain_contract(hashes[contract_hash])
 
 
 def run_contract(contract, variables, get_child_contracts):

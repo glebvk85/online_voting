@@ -90,7 +90,10 @@ def apply_feedback():
     is_auth, trello, user, db = initialize()
     if not is_auth:
         return error("Unauthorized", None, False)
-    db.feedback(request.form['id'], user, try_get_value(request.form, 'themeIsActual'), try_get_value(request.form, 'canApply'), try_get_value(request.form, 'qualityInformation'), try_get_value(request.form, 'preparednessAuthor'), try_get_value(request.form, 'canRecommend'))
+    contract = db.get_contract(request.form['id'])
+    if db.get_feedback(contract.id, user) is not None:
+        return error("You already voted", user, True)
+    db.feedback(contract.id, user, try_get_value(request.form, 'themeIsActual'), try_get_value(request.form, 'canApply'), try_get_value(request.form, 'qualityInformation'), try_get_value(request.form, 'preparednessAuthor'), try_get_value(request.form, 'canRecommend'))
     return render_template(
         'apply_feedback.html',
         year=datetime.now().year,
@@ -107,6 +110,8 @@ def feedback():
     if not is_auth:
         return error("Unauthorized", None, False)
     contract = db.get_contract(request.values['id'])
+    if db.get_feedback(contract.id, user) is not None:
+        return error("You already voted", user, True)
     contract = db.get_contract(contract.parent_contract_id)
     if contract is None:
         return error("Publication not found", user, True)
