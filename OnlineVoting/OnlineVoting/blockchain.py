@@ -50,7 +50,7 @@ class DataBaseSystem:
         return False if card is None else card.list_id == '5a03de5bfc228ec8e0608389'
 
     def run_contracts(self):
-        for item in self.transactions:
+        for item in get_open_contracts(self.transactions, get_hash_contract('theme')):
             if item.type == 'Contract':
                 result = run_chain_contracts(item, self.theme_is_finished, self.get_child_contracts)
                 if result is not None:
