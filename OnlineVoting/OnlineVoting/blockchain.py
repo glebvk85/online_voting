@@ -1,7 +1,7 @@
 import datetime as date
 import json
 import time
-import os  
+import os
 from uuid import uuid4
 from collections import defaultdict
 from OnlineVoting.blockchain import *
@@ -124,8 +124,7 @@ class DataBaseSystem:
     def vote(self, form, user):
         for item in form:
             lecture = self.get_contract(item)
-            member = self.get_trello_member_by_trello_id(user.id)
-            contract = vote(member.id, member.username, lecture.id)
+            contract = vote(user.id, lecture.id)
             write_transaction(contract)
             self.transactions.append(contract)
             card = self.get_trello_card(lecture.parameters_contract[0])
