@@ -46,10 +46,10 @@ class Transaction:
 
 
 class Transfer(Transaction):
-    def __init__(self, transfers, owner=None):
+    def __init__(self, transfers, owner_contract_id=None):
         super(Transfer, self).__init__(version = 1)
         self.transfers = transfers
-        self.owner = owner
+        self.owner_contract_id = owner_contract_id
 
     def as_json(self):
         return super(Transfer, self).as_json()

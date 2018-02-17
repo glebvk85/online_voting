@@ -25,8 +25,8 @@ def create_speaker_contract(trello_member_id, contract_id, members_hash_list):
                     members_hash_list, contract_id)
 
 
-def create_pay(transfers):
-    return Transfer(transfers)
+def create_pay(transfers, owner_contract_id):
+    return Transfer(transfers, owner_contract_id)
 
 
 def get_open_contracts(items, hash_contract):
@@ -75,6 +75,7 @@ def get_hash_contract(name_contract):
     sha = hashlib.sha256()
     sha.update((str(text_contract)).encode('utf-8'))
     return sha.hexdigest()
+
 
 def get_old_hash_member(trello_member_id, trello_member_name):
     sha = hashlib.sha256()

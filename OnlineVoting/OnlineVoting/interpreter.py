@@ -3,8 +3,8 @@ from OnlineVoting.transactions import TransferInfo
 import statistics
 
 
-def pay(pays, from_address, to_address, count):
-    pays.append(TransferInfo(from_address=from_address, to_address=to_address, count=count*100))
+def pay(from_address, to_address, count):
+    return TransferInfo(from_address=from_address, to_address=to_address, count=int(count*100))
 
 
 def get_value(variables, name, default_value):
@@ -20,6 +20,14 @@ def median(items):
 
 
 def get_code_contract(contract_hash):
+    if contract_hash == '10555f55a860fe2309bd6b009c86f1b1415cae99102bf62fb1d1372214706e6b':
+        return read_blockchain_contract('theme')
+    if contract_hash == '10555f55a860fe2309bd6b009c86f1b1415cae99102bf62fb1d1372214706e6b':
+        return read_blockchain_contract('speaker')
+    if contract_hash == '1c8a194d0c19145454b58e4b469bec1ea9c813c7debf96c96611d60135fb3536':
+        return read_blockchain_contract('feedback')
+    if contract_hash == '5e84382ff2b6c1a38e26d56c18346c9fb097ff538135efc91695f64078d24ae4':
+        return read_blockchain_contract('vote')
     return ''
 
 
@@ -40,14 +48,13 @@ def run_contract(contract, variables, get_child_contracts):
     return exec_contract(code_contract, _locals)
 
 
-def run_chain_contracts(contract, card, get_child_contracts):
+def run_chain_contracts(contract, theme_is_finished, get_child_contracts):
     # set variables
-    theme_finished = False if card is None else card.list_id == '5a03de5bfc228ec8e0608389'
-    variables = { 'pays' : [], 'theme_finished' : theme_finished }
+    variables = { 'pays' : [], 'theme_is_finished' : theme_is_finished }
 
     need_close, complete = run_contract(contract, variables, get_child_contracts)
     if need_close and complete:
-        return create_pay(variables['pays'])
+        return create_pay(variables['pays'], contract.id)
 
 
 def exec_contract(text, _locals):

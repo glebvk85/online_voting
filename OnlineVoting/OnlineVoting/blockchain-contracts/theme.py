@@ -2,8 +2,8 @@ name_contract = 'theme'
 version_contract = 1
 
 need_close = True
-theme_finished = get_value(variables, 'theme_finished', False)
-complete = theme_finished
+theme_is_finished = get_value(variables, 'theme_is_finished', None)
+complete = theme_is_finished is not None and theme_is_finished(parameters[0])
 
 if complete:
     investors = get_value(variables, 'investors', [])
@@ -33,6 +33,6 @@ if complete:
             bonus_speaker = 0 if count_of_speakers == 0 else (total_bonus / 2) / count_of_speakers
             bonus_investor = 0 if count_of_investors == 0 else (total_bonus / 2) / count_of_investors
         for item in investors:
-            pay(variables['pays'], None, item, bonus_investor)
+            variables['pays'].append(pay(None, item, bonus_investor))
         for item in speakers:
-            pay(variables['pays'], None, item, bonus_speaker)
+            variables['pays'].append(pay(None, item, bonus_speaker))

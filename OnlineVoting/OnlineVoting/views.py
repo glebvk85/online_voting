@@ -180,6 +180,23 @@ def dashboard():
     )
 
 
+@app.route('/run', methods=['GET'])
+def run():
+    is_auth, trello, user, db = initialize()
+    if not is_auth:
+        return error("Unauthorized", None, False)
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+    result = db.run_contracts()
+    return render_template(
+        'run.html',
+        year=datetime.now().year,
+        is_auth=is_auth,
+        user=user,
+        count_vote=db.free_votes(user),
+        result=result)
+
+
 def error(message, user, is_auth):
     return render_template(
         'error.html',
