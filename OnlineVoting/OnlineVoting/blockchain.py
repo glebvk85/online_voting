@@ -103,7 +103,14 @@ class DataBaseSystem:
         for item in get_open_contracts(self.transactions, hash_theme_contract):
             if self.get_trello_card(item.parameters_contract[0]).list_id == TrelloProvider.listIncomingId:
                 card = self.get_trello_card(item.parameters_contract[0])
-                yield VotingModel(item.id, self.get_trello_member(item.creator_address).full_name, card.name, item.timestamp, card.url)
+                speakers = ''
+                speaker_contract = get_speaker_contract(self.transactions, item.id)
+                if speaker_contract is not None:
+                    speakers_info = []
+                    for sp in speaker_contract.parameters_contract:
+                        speakers_info.append(self.get_trello_member(sp).full_name)
+                        speakers = ', '.join(speakers_info)
+                yield VotingModel(item.id, speakers, card.name, item.timestamp, card.url)
 
     def get_new_publication(self, user):
         member_hash = get_hash_member(user.id)
