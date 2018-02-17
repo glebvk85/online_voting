@@ -46,7 +46,6 @@ class DataBaseSystem:
 
     def theme_is_finished(self, trello_card_id):
         card = self.get_trello_card(trello_card_id)
-        print('card {0}'.format(card))
         return False if card is None else card.list_id == '5a03de5bfc228ec8e0608389'
 
     def run_contracts(self):
@@ -194,7 +193,7 @@ class DataBaseSystem:
                     member_from = 'Get' if pay[0] is None else self.get_trello_member(pay[0]).full_name
                     member_to = self.get_trello_member(pay[1]).full_name
                     count = pay[2]
-                    yield InfoModel(item.timestamp, member_to, 'gets {} by'.format(count/100), self.get_trello_card(owner.parameters_contract[0]).name)
+                    yield InfoModel(item.timestamp, member_to, 'gets {} by'.format(count/1000), self.get_trello_card(owner.parameters_contract[0]).name)
 
     def get_creator_card(self, actions):
         for item in actions:

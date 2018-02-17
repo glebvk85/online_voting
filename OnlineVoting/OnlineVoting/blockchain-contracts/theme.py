@@ -21,6 +21,8 @@ if complete:
     sum_of_feedbacks = 0
     for item in columns:
         sum_of_feedbacks += median(item)
+    if len(columns) != 0:
+        sum_of_feedbacks = sum_of_feedbacks / (len(columns) * 10)
     sum_of_votes = sum(votes)
     count_of_speakers = len(speakers)
     count_of_investors = len(investors)

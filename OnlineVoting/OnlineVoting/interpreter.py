@@ -4,7 +4,7 @@ import statistics
 
 
 def pay(from_address, to_address, count):
-    return TransferInfo(from_address=from_address, to_address=to_address, count=int(count*100))
+    return TransferInfo(from_address=from_address, to_address=to_address, count=int(count*1000))
 
 
 def get_value(variables, name, default_value):
