@@ -8,7 +8,6 @@ def pay(pays, from_address, to_address, count):
 
 
 def get_value(variables, name, default_value):
-    print('get value: {}'.format(name))
     try:
         return variables[name]
     except KeyError:
@@ -16,8 +15,8 @@ def get_value(variables, name, default_value):
         return get_value(variables, name, default_value)
 
 
-def median(list):
-    return statistics.median(list)
+def median(items):
+    return statistics.median(items)
 
 
 def get_code_contract(contract_hash):
@@ -49,39 +48,6 @@ def run_chain_contracts(contract, card, get_child_contracts):
     need_close, complete = run_contract(contract, variables, get_child_contracts)
     if need_close and complete:
         return create_pay(variables['pays'])
-    '''
-    text = read_blockchain_contract('vote')
-
-    parameters = [1]
-    owner_address = 'sdsdsd'
-    _locals = locals()
-    print(run_contract(text, _locals))
-    parameters = [2]
-    owner_address = 'fgdgdf'
-    _locals = locals()
-    print(run_contract(text, _locals))
-    parameters = [3]
-    owner_address = '1111'
-    _locals = locals()
-    print(run_contract(text, _locals))
-
-    text = read_blockchain_contract('feedback')
-    parameters = [1, 2, 2, 3, 4]
-    owner_address = 'sdssdsdsdsddsd'
-    _locals = locals()
-    print(run_contract(text, _locals))
-
-    parameters = [2, 2, 2, 1, 4]
-    owner_address = 'sdsdsdsdsddsdsd'
-    _locals = locals()
-    print(run_contract(text, _locals))
-
-    text = read_blockchain_contract('theme')
-    parameters = [1]
-    owner_address = 'sdsdsd'
-    _locals = locals()
-    print(run_contract(text, _locals))
-    '''
 
 
 def exec_contract(text, _locals):

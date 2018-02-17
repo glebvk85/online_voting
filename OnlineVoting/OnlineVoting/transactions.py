@@ -46,43 +46,23 @@ class Transaction:
 
 
 class Transfer(Transaction):
-    def __init__(self, transfers):
+    def __init__(self, transfers, owner=None):
         super(Transfer, self).__init__(version = 1)
         self.transfers = transfers
+        self.owner = owner
 
     def as_json(self):
         return super(Transfer, self).as_json()
 
 
 class Contract(Transaction):
-    def __init__(self, creator_address, hash_contract, parameters_contract):
+    def __init__(self, creator_address, hash_contract, parameters_contract, parent_contract_id=None):
         super(Contract, self).__init__(version = 1)
         self.creator_address = creator_address
         self.hash_contract = hash_contract
         self.parameters_contract = parameters_contract
+        self.parent_contract_id = parent_contract_id
 
     def as_json(self):
         return super(Contract, self).as_json()
 
-
-class ChildContract(Transaction):
-    def __init__(self, creator_address, hash_contract, parent_contract_id, parameters_contract):
-        super(ChildContract, self).__init__(version = 1)
-        self.creator_address = creator_address
-        self.parent_contract_id = parent_contract_id
-        self.hash_contract = hash_contract
-        self.parameters_contract = parameters_contract
-
-    def as_json(self):
-        return super(ChildContract, self).as_json()
-
-
-class ClosingContract(Transaction):
-    def __init__(self, creator_address, parent_contract_id, parameters_contract):
-        super(ClosingContract, self).__init__(version = 1)
-        self.creator_address = creator_address
-        self.parent_contract_id = parent_contract_id
-        self.parameters_contract = parameters_contract
-
-    def as_json(self):
-        return super(ClosingContract, self).as_json()

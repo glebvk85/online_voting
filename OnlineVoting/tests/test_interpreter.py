@@ -1,7 +1,7 @@
 import unittest
 from unittest.mock import patch
 from OnlineVoting.interpreter import *
-from OnlineVoting.transactions import Contract, ChildContract
+from OnlineVoting.transactions import Contract
 from OnlineVoting.contracts import read_blockchain_contract
 
 
@@ -10,19 +10,19 @@ def create_theme_contract():
 
 
 def create_speaker_contract(parent_id):
-    return ChildContract('owner_speaker', 'speaker', parent_id, ['author'])
+    return Contract('owner_speaker', 'speaker', ['author'], parent_id)
 
 
 def create_publication_contract(parent_id):
-    return ChildContract('owner_publication', 'publication', parent_id, [])
+    return Contract('owner_publication', 'publication', [], parent_id)
 
 
 def create_feedback_contract(parent_id):
-    return ChildContract('owner_feedback', 'feedback', parent_id, [1, 2, 3, 4, 5])
+    return Contract('owner_feedback', 'feedback', [1, 2, 3, 4, 5], parent_id)
 
 
 def create_vote_contract(parent_id):
-    return ChildContract('owner_vote', 'vote', parent_id, [1])
+    return Contract('owner_vote', 'vote', [1], parent_id)
 
 
 class CardFake:
@@ -46,7 +46,7 @@ class InterpreterTest(unittest.TestCase):
         pays = []
         pay(pays, 'from', 'to', 1)
         self.assertEqual(1, len(pays))
-    '''
+
     @patch('OnlineVoting.interpreter.get_code_contract', return_value='')
     def test_run_chain_contracts_empty(self, patch_get_code_contract):
         result = run_chain_contracts(create_theme_contract(), CardFake(False), get_child_contracts_fake)
@@ -61,7 +61,7 @@ class InterpreterTest(unittest.TestCase):
     def test_run_chain_contracts_theme_finished(self):
         result = run_chain_contracts(create_theme_contract(), CardFake(True), get_child_contracts_fake)
         self.assertEqual(result.transfers, [])
-    '''
+
     @patch('OnlineVoting.interpreter.get_code_contract', new=patch_get_code_contract)
     def test_run_chain_contracts_theme_finished_with_feedback(self):
         contract = create_theme_contract()
