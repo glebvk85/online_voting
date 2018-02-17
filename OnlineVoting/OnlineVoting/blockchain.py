@@ -22,7 +22,7 @@ class DataBaseSystem:
     def free_votes(self, member):
         if member is None:
             return None
-        member_hash = get_hash_member(member.id, member.username)
+        member_hash = get_hash_member(member.id)
         count = 0
         for i in get_open_contracts(self.transactions, get_hash_contract('vote')):
             if i.creator_address == member_hash:
@@ -36,12 +36,12 @@ class DataBaseSystem:
         for i in get_open_contracts(self.transactions, get_hash_contract('vote')):
             votes.setdefault(i.creator_address, []).append(i.parameters_contract[0])
         for i in self.allMembers:
-            member_hash = get_hash_member(i.id, i.username)
+            member_hash = get_hash_member(i.id)
             votes.setdefault(member_hash, [])
             yield PointModel(i.username, i.full_name, max_votes - sum(votes[member_hash]))
 
     def get_themes_by_user(self, member):
-        member_hash = get_hash_member(member.id, member.username)
+        member_hash = get_hash_member(member.id)
         contracts = get_open_contracts(self.transactions, get_hash_contract('theme'))
         for item in contracts:
             if item.creator_address == member_hash:
@@ -56,11 +56,11 @@ class DataBaseSystem:
     def get_lecture_contract(self, trello_card_id):
         hash_contract = get_hash_contract('theme')
         for item in self.transactions:
-            if item.type == 'Contract' and item.parameters_contract[0] == trello_card_id and item.hash_contract == hash_contract:
+            if item.type == 'Contract' and item.hash_contract == hash_contract and item.parameters_contract[0] == trello_card_id:
                 return item
 
     def get_feedback(self, publication_contract_id, member):
-        member_hash = get_hash_member(member.id, member.username)
+        member_hash = get_hash_member(member.id)
         hash_contract = get_hash_contract('feedback')
         for item in self.transactions:
             if item.type == 'Contract' and item.hash_contract == hash_contract and item.parent_contract_id == publication_contract_id and item.creator_address == member_hash:
@@ -73,12 +73,12 @@ class DataBaseSystem:
 
     def get_trello_member(self, member_hash):
         for item in self.allMembers:
-            if get_hash_member(item.id, item.username) == member_hash:
+            if get_hash_member(item.id) == member_hash:
                 return item
 
-    def get_trello_member_by_trello_id(self, trello_member_id):
+    def get_trello_member_by_username(self, trello_username):
         for item in self.allMembers:
-            if item.id == trello_member_id:
+            if item.username == trello_username:
                 return item
 
     def get_voting_list(self):
@@ -89,8 +89,7 @@ class DataBaseSystem:
                 yield VotingModel(item.id, self.get_trello_member(item.creator_address).full_name, card.name, item.timestamp, card.url)
 
     def get_new_publication(self, user):
-        member = self.get_trello_member_by_trello_id(user.id)
-        member_hash = get_hash_member(member.id, member.username)
+        member_hash = get_hash_member(user.id)
         hash_publication_contract = get_hash_contract('publication')
         hash_feedback_contract = get_hash_contract('feedback')
         for item in get_open_contracts(self.transactions, hash_publication_contract):
@@ -128,15 +127,13 @@ class DataBaseSystem:
     def publication(self, form, user):
         for item in form:
             lecture = self.get_contract(item)
-            member = self.get_trello_member_by_trello_id(user.id)
-            contract = create_publication_contract(get_hash_member(member.id, member.username), lecture.id)
+            contract = create_publication_contract(get_hash_member(user.id), lecture.id)
             write_transaction(contract)
             self.transactions.append(contract)
 
     def feedback(self, contractId, user, theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend):
         lecture = self.get_contract(contractId)
-        member = self.get_trello_member_by_trello_id(user.id)
-        contract = create_feedback_contract(member.id, member.username, lecture.id, theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend)
+        contract = create_feedback_contract(user.id, lecture.id, theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend)
         write_transaction(contract)
         self.transactions.append(contract)
 
@@ -146,6 +143,7 @@ class DataBaseSystem:
         hash_vote_contract = get_hash_contract('vote')
         hash_publication_contract = get_hash_contract('publication')
         hash_feedback_contract = get_hash_contract('feedback')
+        hash_speaker_contract = get_hash_contract('speaker')
         for item in sorted_list:
             if item.hash_contract == hash_theme_contract:
                 yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, 'create theme', self.get_trello_card(item.parameters_contract[0]).name)
@@ -158,25 +156,38 @@ class DataBaseSystem:
             if item.hash_contract == hash_feedback_contract:
                 parent = self.get_contract(item.parent_contract_id)
                 parent = self.get_contract(parent.parent_contract_id)
-                points = " ".join(str(x) for x in item.parameters_contract)
-                data = "feedback - [{0}]".format(points)
+                points = ' '.join(str(x) for x in item.parameters_contract)
+                data = 'feedback - [{0}]'.format(points)
+                yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
+            if item.hash_contract == hash_speaker_contract:
+                parent = self.get_contract(item.parent_contract_id)
+                data = 'set speaker(s) {0}'.format([self.get_trello_member(x).full_name for x in item.parameters_contract])
                 yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
 
+    def get_creator_card(self, actions):
+        for item in actions:
+            if item['type'] == 'createCard':
+                return item['idMemberCreator']
+
+    def get_speakers(self, comments):
+        if comments is not None:
+            for item in comments:
+                if item['type'] == 'commentCard':
+                    text_comment = item['data']['text']
+                    authors = text_comment.strip().split(' ')
+                    if len(authors) > 0:
+                        is_authors_comment = sum([len(x) > 0 and x[0] == '@' for x in authors]) == len(authors)
+                        if is_authors_comment:
+                            authors = [x[1:] for x in authors]
+                            speakers = [self.get_trello_member_by_username(x) for x in authors]
+                            if None not in speakers:
+                                return (item['idMemberCreator'], speakers)
+
     def sync_lectures(self):
-        # sync new lectures
-        for item in self.allCards:
-            contract = self.get_lecture_contract(item.id)
-            if contract is None:
-                if len(item.member_id) > 0:
-                    member = self.get_trello_member_by_trello_id(item.member_id[0])
-                    if member is not None:
-                        item.fetch_actions()
-                        print(item.actions)
-                        contract = create_theme_contract(member.id, member.username, item.id)
-                        contract.timestamp = int(time.mktime(item.card_created_date.timetuple())) 
-                        write_transaction(contract)
-                        self.transactions.append(contract)
         # update contracts
+        mem = {}
+        for x in self.allMembers:
+            mem[get_old_hash_member(x.id, x.username)] = get_hash_member(x.id)
         for item in self.transactions:
             old_hashes = {'86b1e91ae158671c784422216426ac7e50cd14412049322609cee2448c865c15' : 'feedback',
                           '90e8255cf28c2979b69f2a91439ebd1b765f46884de2ef7d4653e71af6c6b060' : 'publication',
@@ -184,8 +195,38 @@ class DataBaseSystem:
                           'eec62090053d8bd962da5993d600a0b2a0f9836e194f315903a5f9a0ed6dab7c' : 'vote',
                           }
             item.hash_contract = get_hash_contract(old_hashes[item.hash_contract])
+            if item.type == 'Contract':
+                item.parent_contract_id = None
+            if item.type == 'ChildContract':
+                item.type = 'Contract'
+            item.creator_address = mem[item.creator_address]
             write_transaction(item)
-
+        # sync new lectures
+        for item in self.allCards:
+            contract = self.get_lecture_contract(item.id)
+            if contract is None:
+                if len(item.member_id) > 0:
+                    item.fetch_actions()
+                    member_id = self.get_creator_card(item.actions)
+                    contract = create_theme_contract(member_id, item.id)
+                    contract.timestamp = int(time.mktime(item.card_created_date.timetuple()))
+                    write_transaction(contract)
+                    self.transactions.append(contract)
+            else:
+                item.fetch_actions()
+                member_id = self.get_creator_card(item.actions)
+                contract.creator_address = get_hash_member(member_id)
+                write_transaction(contract)
+            # add speakers
+            if contract is not None:
+                speaker_contract = get_speaker_contract(self.transactions, contract.id)
+                if speaker_contract is None:
+                    item.fetch_comments(True)
+                    speakers_info = self.get_speakers(item.fetch_comments(True))
+                    if speakers_info is not None:
+                        speaker_contract = create_speaker_contract(speakers_info[0], contract.id, [get_hash_member(x.id) for x in speakers_info[1]])
+                        write_transaction(speaker_contract)
+                        self.transactions.append(speaker_contract)
 
 
 

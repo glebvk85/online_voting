@@ -2,35 +2,40 @@ from OnlineVoting.transactions import *
 import hashlib
 
 
-def create_theme_contract(trello_member_id, trello_member_name, trello_card_id):
-    return Contract(get_hash_member(trello_member_id, trello_member_name), get_hash_contract('theme'), [trello_card_id])
+def create_theme_contract(trello_member_id, trello_card_id):
+    return Contract(get_hash_member(trello_member_id), get_hash_contract('theme'), [trello_card_id])
 
 
-def vote(trello_member_id, trello_member_name, contract_id):
-    return Contract(get_hash_member(trello_member_id, trello_member_name), get_hash_contract('vote'), [1], contract_id)
+def vote(trello_member_id, contract_id):
+    return Contract(get_hash_member(trello_member_id), get_hash_contract('vote'), [1], contract_id)
 
 
 def create_publication_contract(member_hash, contract_id):
     return Contract(member_hash, get_hash_contract('publication'), [], contract_id)
 
 
-def create_feedback_contract(trello_member_id, trello_member_name, contract_id,
+def create_feedback_contract(trello_member_id, contract_id,
                              theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend):
-    return Contract(get_hash_member(trello_member_id, trello_member_name), get_hash_contract('feedback'),
+    return Contract(get_hash_member(trello_member_id), get_hash_contract('feedback'),
                     [theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend], contract_id)
+
+
+def create_speaker_contract(trello_member_id, contract_id, members_hash_list):
+    return Contract(get_hash_member(trello_member_id), get_hash_contract('speaker'),
+                    members_hash_list, contract_id)
 
 
 def create_pay(transfers):
     return Transfer(transfers)
 
 
-def get_open_contracts(items, hash_cContract):
+def get_open_contracts(items, hash_contract):
     sorted_items = sorted(items, key=sort_transaction)
     contracts = []
     closed_contracts = set()
     for item in sorted_items:
         if item.type == 'Contract':
-            if item.hash_contract == hash_cContract:
+            if item.hash_contract == hash_contract:
                 contracts.append(item)
         if item.type == 'Transfer':
             closed_contracts.add(item.owner_contract_id)
@@ -39,9 +44,23 @@ def get_open_contracts(items, hash_cContract):
             yield item
 
 
-def get_hash_member(trello_member_id, trello_member_name):
+def get_child_contracts(items, contract_id):
+    sorted_items = sorted(items, key=sort_transaction)
+    for item in sorted_items:
+        if item.type == 'Contract' and item.parent_contract_id == contract_id:
+            yield item
+
+
+def get_speaker_contract(items, contract_id):
+    hash_contract = get_hash_contract('speaker')
+    for item in get_child_contracts(items, contract_id):
+        if item.hash_contract == hash_contract:
+            return item
+
+
+def get_hash_member(trello_member_id):
     sha = hashlib.sha256()
-    sha.update((str(trello_member_id) + str(trello_member_name)).encode('utf-8'))
+    sha.update((str(trello_member_id)).encode('utf-8'))
     return sha.hexdigest()
 
 
@@ -57,3 +76,7 @@ def get_hash_contract(name_contract):
     sha.update((str(text_contract)).encode('utf-8'))
     return sha.hexdigest()
 
+def get_old_hash_member(trello_member_id, trello_member_name):
+    sha = hashlib.sha256()
+    sha.update((str(trello_member_id) + str(trello_member_name)).encode('utf-8'))
+    return sha.hexdigest()
