@@ -6,6 +6,7 @@ from flask import render_template, make_response, request, redirect, url_for
 from OnlineVoting import app
 from OnlineVoting.trello import TrelloProvider
 from OnlineVoting.blockchain import DataBaseSystem
+from flask import Response
 
 
 @app.route('/')
@@ -181,8 +182,26 @@ def dashboard():
         user=user,
         count_vote=db.free_votes(user),
         list=db.get_all_free_votes(),
+        publications=db.get_all_publications(),
         header='System'
     )
+
+
+@app.route('/feedback_export.csv')
+def feedback_export():
+    is_auth, trello, user, db = initialize()
+    if not is_auth:
+        return error("Unauthorized", None, False)
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+
+    def generate(contracts):
+        for row in contracts:
+            author = db.get_trello_member(row.creator_address).full_name
+            points = ','.join([str(x) for x in row.parameters_contract])
+            yield author + ',' + points + '\n'
+
+    return Response(generate(db.get_child_contracts(request.values['id'])), mimetype='text/csv')
 
 
 @app.route('/run', methods=['GET'])

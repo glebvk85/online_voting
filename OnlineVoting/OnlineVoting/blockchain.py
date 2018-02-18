@@ -127,6 +127,15 @@ class DataBaseSystem:
                 card = self.get_trello_card(parent.parameters_contract[0])
                 yield VotingModel(item.id, self.get_trello_member(item.creator_address).full_name, card.name, item.timestamp, card.url)
 
+    def get_all_publications(self):
+        sorted_items = sorted(self.transactions, key=sort_transaction)
+        for item in sorted_items:
+            if item.type == 'Contract' and item.hash_contract == get_hash_contract('publication'):
+                parent = self.get_contract(item.parent_contract_id)
+                card = self.get_trello_card(parent.parameters_contract[0])
+                yield VotingModel(item.id, self.get_trello_member(item.creator_address).full_name, card.name,
+                                  item.timestamp, card.url)
+
     def vote(self, form, user):
         for item in form:
             lecture = self.get_contract(item)
