@@ -102,7 +102,7 @@ class DataBaseSystem:
         for item in get_open_contracts(self.transactions, hash_theme_contract):
             if self.get_trello_card(item.parameters_contract[0]).list_id == TrelloProvider.listIncomingId:
                 card = self.get_trello_card(item.parameters_contract[0])
-                speakers = ''
+                speakers = '(no speaker)'
                 speaker_contract = get_speaker_contract(self.transactions, item.id)
                 if speaker_contract is not None:
                     speakers_info = []
