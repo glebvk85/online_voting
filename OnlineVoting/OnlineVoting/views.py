@@ -220,7 +220,7 @@ def is_admin(username):
 
 
 def try_get_value(form, value_name):
-    return form[value_name] if value_name in form else 0
+    return int(form[value_name]) if value_name in form else 0
 
 
 def initialize():
