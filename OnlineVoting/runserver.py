@@ -17,6 +17,6 @@ if __name__ == '__main__':
     args = parser.parse_args()
     PORT = 11234
     try:
-        app.run(host=args.host, port=PORT, threaded=True)
+        app.run(host=args.host, port=PORT)
     except Exception as x:
         logging.exception(x)
