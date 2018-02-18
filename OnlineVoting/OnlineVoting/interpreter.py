@@ -27,15 +27,6 @@ def get_code_contract(contract_hash):
     hashes[get_hash_contract('theme')] = 'theme'
     hashes[get_hash_contract('vote')] = 'vote'
 
-    if contract_hash == '10555f55a860fe2309bd6b009c86f1b1415cae99102bf62fb1d1372214706e6b':
-        return read_blockchain_contract('theme')
-    if contract_hash == 'bf28c889bbe3b2208e5393d3a27fc93f98b8922930a1e9c8cc2b58c37b960814':
-        return read_blockchain_contract('speaker')
-    if contract_hash == '1c8a194d0c19145454b58e4b469bec1ea9c813c7debf96c96611d60135fb3536':
-        return read_blockchain_contract('feedback')
-    if contract_hash == '5e84382ff2b6c1a38e26d56c18346c9fb097ff538135efc91695f64078d24ae4':
-        return read_blockchain_contract('vote')
-
     return read_blockchain_contract(hashes[contract_hash])
 
 

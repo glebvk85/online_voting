@@ -189,6 +189,8 @@ class DataBaseSystem:
                     yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
             if item.type == 'Transfer':
                 owner = self.get_contract(item.owner_contract_id)
+                yield InfoModel(item.timestamp, self.get_trello_member(owner.creator_address).full_name, 'closed',
+                                self.get_trello_card(owner.parameters_contract[0]).name)
                 for pay in item.transfers:
                     member_from = 'Get' if pay[0] is None else self.get_trello_member(pay[0]).full_name
                     member_to = self.get_trello_member(pay[1]).full_name
@@ -215,23 +217,6 @@ class DataBaseSystem:
                                 return (item['idMemberCreator'], speakers)
 
     def sync_lectures(self):
-        # update contracts
-        mem = {}
-        for x in self.allMembers:
-            mem[get_old_hash_member(x.id, x.username)] = get_hash_member(x.id)
-        for item in self.transactions:
-            old_hashes = {'86b1e91ae158671c784422216426ac7e50cd14412049322609cee2448c865c15' : 'feedback',
-                          '90e8255cf28c2979b69f2a91439ebd1b765f46884de2ef7d4653e71af6c6b060' : 'publication',
-                          'a96a59ffd294d425a433b14657d5b6ea1a6215f809f8a849e045dc06e0b11d09' : 'theme',
-                          'eec62090053d8bd962da5993d600a0b2a0f9836e194f315903a5f9a0ed6dab7c' : 'vote',
-                          }
-            item.hash_contract = get_hash_contract(old_hashes[item.hash_contract])
-            if item.type == 'Contract':
-                item.parent_contract_id = None
-            if item.type == 'ChildContract':
-                item.type = 'Contract'
-            item.creator_address = mem[item.creator_address]
-            write_transaction(item)
         # sync new lectures
         for item in self.allCards:
             contract = self.get_lecture_contract(item.id)
@@ -243,11 +228,6 @@ class DataBaseSystem:
                     contract.timestamp = int(time.mktime(item.card_created_date.timetuple()))
                     write_transaction(contract)
                     self.transactions.append(contract)
-            else:
-                item.fetch_actions()
-                member_id = self.get_creator_card(item.actions)
-                contract.creator_address = get_hash_member(member_id)
-                write_transaction(contract)
             # add speakers
             if contract is not None:
                 speaker_contract = get_speaker_contract(self.transactions, contract.id)
