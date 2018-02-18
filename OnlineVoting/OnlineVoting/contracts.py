@@ -29,6 +29,20 @@ def create_pay(transfers, owner_contract_id):
     return Transfer(transfers, owner_contract_id)
 
 
+def get_contract(contracts, contract_id):
+    for item in contracts:
+        if item.id == contract_id:
+            return item
+
+
+def is_closed(contract, all_contracts, closed_contracts):
+    if contract.id in closed_contracts:
+        return True
+    if contract.parent_contract_id is not None:
+        return is_closed(get_contract(all_contracts, contract.parent_contract_id), all_contracts, closed_contracts)
+    return False
+
+
 def get_open_contracts(items, hash_contract):
     sorted_items = sorted(items, key=sort_transaction)
     contracts = []
@@ -40,7 +54,7 @@ def get_open_contracts(items, hash_contract):
         if item.type == 'Transfer':
             closed_contracts.add(item.owner_contract_id)
     for item in contracts:
-        if item.id not in closed_contracts:
+        if not is_closed(item, items, closed_contracts):
             yield item
 
 

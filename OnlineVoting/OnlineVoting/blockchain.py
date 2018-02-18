@@ -178,6 +178,7 @@ class DataBaseSystem:
         hash_speaker_contract = get_hash_contract('speaker')
         for item in sorted_list:
             if item.type == 'Contract':
+                # yield  InfoModel(item.timestamp, item.id, 'has parent', item.parent_contract_id)
                 if item.hash_contract == hash_theme_contract:
                     yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, 'create theme', self.get_trello_card(item.parameters_contract[0]).name)
                 if item.hash_contract == hash_vote_contract:
