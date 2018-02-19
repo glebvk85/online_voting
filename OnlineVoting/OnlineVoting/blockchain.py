@@ -31,6 +31,33 @@ class DataBaseSystem:
         max_votes = 2
         return max_votes - count
 
+    def count_coins(self, member):
+        if member is None:
+            return None
+        member_hash = get_hash_member(member.id)
+        balance = 0
+        for item in self.transactions:
+            if item.type == 'Transfer':
+                for pay in item.transfers:
+                    if pay[0] == member_hash:
+                        balance -= pay[2]
+                    if pay[1] == member_hash:
+                        balance += pay[2]
+        return balance / 1000
+
+    def history_balance(self, member):
+        if member is None:
+            return None
+        member_hash = get_hash_member(member.id)
+        for item in self.transactions:
+            if item.type == 'Transfer':
+                for pay in item.transfers:
+                    if pay[1] == member_hash:
+                        contract = self.get_contract(item.owner_contract_id)
+                        card = self.get_trello_card(contract.parameters_contract[0])
+                        speakers = self.get_speakers(item.owner_contract_id)
+                        yield PointModel(speakers, card.name, pay[2]/1000)
+
     def get_all_free_votes(self):
         max_votes = 2
         votes = defaultdict()

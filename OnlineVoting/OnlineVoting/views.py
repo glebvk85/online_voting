@@ -24,6 +24,7 @@ def home():
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         header='Голосуем за темы на обучение с учетом их актуальности для решения тактических и стратегических вопросов в команде.',
         auth_url=make_authorization_url(return_url),
         cards=incoming_cards
@@ -43,7 +44,8 @@ def voting():
         year=datetime.now().year,
         is_auth=is_auth,
         user=user,
-        count_vote=db.free_votes(user),
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         message='Your vote is accepted!',
     )
 
@@ -63,6 +65,7 @@ def room():
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         themes=themes,
         feedbacks=db.get_new_publication(user),
         header='My themes',
@@ -82,6 +85,7 @@ def create_feedback():
         is_auth = is_auth,
         user = user,
         count_vote = count_free_votes(db, user),
+        count_points=count_coins(db, user),
         message='Page for feedback created!'
     )
 
@@ -101,7 +105,8 @@ def apply_feedback():
         is_auth = is_auth,
         message='Thanks for feedback!',
         user=user,
-        count_vote=count_free_votes(db, user)
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user)
     )
 
 
@@ -123,6 +128,7 @@ def feedback():
         is_auth = is_auth,
         user = user,
         count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         header=card.name,
         contract_id = request.values['id'],
         title1 = 'Эта тема актуальна/релевантна для наших задач',
@@ -147,6 +153,7 @@ def process():
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         debug_print="debug",
         header='System',
     )
@@ -165,7 +172,26 @@ def info():
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         list=db.get_info(),
+        header='System'
+    )
+
+@app.route('/history_balance', methods=['GET'])
+def history_balance():
+    is_auth, trello, user, db = initialize()
+    if not is_auth:
+        return error("Unauthorized", None, False)
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+    return render_template(
+        'history_balance.html',
+        year=datetime.now().year,
+        is_auth=is_auth,
+        user=user,
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
+        list=db.history_balance(user),
         header='System'
     )
 
@@ -180,7 +206,8 @@ def dashboard():
         year=datetime.now().year,
         is_auth=is_auth,
         user=user,
-        count_vote=db.free_votes(user),
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         list=db.get_all_free_votes(),
         publications=db.get_all_publications(),
         header='System'
@@ -217,7 +244,8 @@ def run():
         year=datetime.now().year,
         is_auth=is_auth,
         user=user,
-        count_vote=db.free_votes(user),
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
         result=result)
 
 
@@ -256,3 +284,6 @@ def initialize():
 
 def count_free_votes(db, user):
     return None if db is None or user is None else db.free_votes(user)
+
+def count_coins(db, user):
+    return None if db is None or user is None else db.count_coins(user)
