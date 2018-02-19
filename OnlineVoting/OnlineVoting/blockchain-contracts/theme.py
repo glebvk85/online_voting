@@ -9,24 +9,12 @@ if complete:
     investors = get_value(variables, 'investors', [])
     speakers = get_value(variables, 'speakers', [])
     votes = get_value(variables, 'votes', [])
-    feedbacks = get_value(variables, 'feedbacks', [])
+    publication_points = get_value(variables, 'publication_points', [])
 
-    columns = []
-    for item in feedbacks:
-        if len(columns) == 0:
-            for i in range(len(item)):
-                columns.append([])
-        for i in range(len(item)):
-            columns[i].append(item[i])
-    sum_of_feedbacks = 0
-    for item in columns:
-        sum_of_feedbacks += median(item)
-    if len(columns) != 0:
-        sum_of_feedbacks = sum_of_feedbacks / (len(columns) * 10)
     sum_of_votes = sum(votes)
     count_of_speakers = len(speakers)
     count_of_investors = len(investors)
-    total_bonus = sum_of_votes + sum_of_feedbacks
+    total_bonus = sum_of_votes + sum(publication_points)
     if count_of_speakers + count_of_investors != 0:
         if count_of_speakers <= count_of_investors:
             bonus_speaker = total_bonus / (count_of_speakers + count_of_investors)

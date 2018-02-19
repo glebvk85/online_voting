@@ -60,7 +60,8 @@ class DataBaseSystem:
         member_hash = get_hash_member(member.id)
         contracts = get_open_contracts(self.transactions, get_hash_contract('theme'))
         for item in contracts:
-            if item.creator_address == member_hash:
+            speaker_contract = get_speaker_contract(self.transactions, item.id)
+            if speaker_contract is not None and member_hash in speaker_contract.parameters_contract:
                 card = self.get_trello_card(item.parameters_contract[0])
                 yield VotingModel(item.id, member.full_name, card.name, item.timestamp, card.short_url)
 
@@ -97,18 +98,22 @@ class DataBaseSystem:
             if item.username == trello_username:
                 return item
 
+    def get_speakers(self, theme_contract_id):
+        speakers = '(no speaker)'
+        speaker_contract = get_speaker_contract(self.transactions, theme_contract_id)
+        if speaker_contract is not None:
+            speakers_info = []
+            for sp in speaker_contract.parameters_contract:
+                speakers_info.append(self.get_trello_member(sp).full_name)
+                speakers = ', '.join(speakers_info)
+        return speakers
+
     def get_voting_list(self):
         hash_theme_contract = get_hash_contract('theme')
         for item in get_open_contracts(self.transactions, hash_theme_contract):
             if self.get_trello_card(item.parameters_contract[0]).list_id == TrelloProvider.listIncomingId:
                 card = self.get_trello_card(item.parameters_contract[0])
-                speakers = '(no speaker)'
-                speaker_contract = get_speaker_contract(self.transactions, item.id)
-                if speaker_contract is not None:
-                    speakers_info = []
-                    for sp in speaker_contract.parameters_contract:
-                        speakers_info.append(self.get_trello_member(sp).full_name)
-                        speakers = ', '.join(speakers_info)
+                speakers = self.get_speakers(item.id)
                 yield VotingModel(item.id, speakers, card.name, item.timestamp, card.url)
 
     def get_new_publication(self, user):
@@ -125,7 +130,8 @@ class DataBaseSystem:
             if not found:
                 parent = self.get_contract(item.parent_contract_id)
                 card = self.get_trello_card(parent.parameters_contract[0])
-                yield VotingModel(item.id, self.get_trello_member(item.creator_address).full_name, card.name, item.timestamp, card.url)
+                speakers = self.get_speakers(item.parent_contract_id)
+                yield VotingModel(item.id, speakers, card.name, item.timestamp, card.url)
 
     def get_all_publications(self):
         sorted_items = sorted(self.transactions, key=sort_transaction)
@@ -133,7 +139,8 @@ class DataBaseSystem:
             if item.type == 'Contract' and item.hash_contract == get_hash_contract('publication'):
                 parent = self.get_contract(item.parent_contract_id)
                 card = self.get_trello_card(parent.parameters_contract[0])
-                yield VotingModel(item.id, self.get_trello_member(item.creator_address).full_name, card.name,
+                speakers = self.get_speakers(item.parent_contract_id)
+                yield VotingModel(item.id, speakers, card.name,
                                   item.timestamp, card.url)
 
     def vote(self, form, user):
@@ -163,11 +170,13 @@ class DataBaseSystem:
             self.transactions.append(contract)
 
     def feedback(self, contractId, user, theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend):
-        lecture = self.get_contract(contractId)
-        contract = create_feedback_contract(user.id, lecture.id, theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend)
+        publication = self.get_contract(contractId)
+        contract = create_feedback_contract(user.id, publication.id, theme_is_actual, can_apply, quality_information, preparedness_author, can_recommend)
         write_transaction(contract)
         self.transactions.append(contract)
-
+        lecture = self.get_contract(publication.parent_contract_id)
+        card = self.get_trello_card(lecture.parameters_contract[0])
+        card.comment('Feedback: | {} |'.format(' | '.join([str(theme_is_actual), str(can_apply), str(quality_information), str(preparedness_author), str(can_recommend)])))
 
     def get_info(self):
         sorted_list = sorted(self.transactions, key=sort_transaction)
@@ -212,7 +221,7 @@ class DataBaseSystem:
             if item['type'] == 'createCard':
                 return item['idMemberCreator']
 
-    def get_speakers(self, comments):
+    def import_speakers(self, comments):
         if comments is not None:
             for item in comments:
                 if item['type'] == 'commentCard':
@@ -227,6 +236,12 @@ class DataBaseSystem:
                                 return (item['idMemberCreator'], speakers)
 
     def sync_lectures(self):
+        for item in self.transactions:
+            if item.hash_contract == 'd1ec5b73915807a3aac8903233bfcbfaaecadf09e3446c68f08a797f189e54a0' or item.hash_contract == 'ce0f16b046cedc269e50ad39540eade7397a10f113d2c4cd2de96d896d264581':
+                item.hash_contract = get_hash_contract('theme')
+            if item.hash_contract == '90e8255cf28c2979b69f2a91439ebd1b765f46884de2ef7d4653e71af6c6b060':
+                item.hash_contract = get_hash_contract('publication')
+            write_transaction(item)
         # sync new lectures
         for item in self.allCards:
             contract = self.get_lecture_contract(item.id)
@@ -243,7 +258,7 @@ class DataBaseSystem:
                 speaker_contract = get_speaker_contract(self.transactions, contract.id)
                 if speaker_contract is None:
                     item.fetch_comments(True)
-                    speakers_info = self.get_speakers(item.fetch_comments(True))
+                    speakers_info = self.import_speakers(item.fetch_comments(True))
                     if speakers_info is not None:
                         speaker_contract = create_speaker_contract(speakers_info[0], contract.id, [get_hash_member(x.id) for x in speakers_info[1]])
                         write_transaction(speaker_contract)

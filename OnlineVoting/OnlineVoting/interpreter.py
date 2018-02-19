@@ -14,6 +14,8 @@ def get_value(variables, name, default_value):
         variables[name] = default_value
         return get_value(variables, name, default_value)
 
+def set_value(variables, name, value):
+    variables[name] = value
 
 def median(items):
     return statistics.median(items)
