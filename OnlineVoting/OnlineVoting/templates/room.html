@@ -22,7 +22,7 @@
 
 <h3>{{header2}}</h3>
 {% for item in feedbacks %}
-<a href="{{ url_for('feedback', id=item.id) }}">{{item.timestamp}} -- {{item.authorName}} -- {{item.themeName}}</a><br/>
+<a href="{{ url_for('feedback', id=item.id) }}">{{item.timestamp}} ({{item.authorName}}) {{item.themeName}}</a><br/>
 
 {% endfor %}
 
