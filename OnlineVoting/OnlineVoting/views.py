@@ -182,8 +182,6 @@ def history_balance():
     is_auth, trello, user, db = initialize()
     if not is_auth:
         return error("Unauthorized", None, False)
-    if not is_admin(user.username):
-        return error("Access denied", user, True)
     return render_template(
         'history_balance.html',
         year=datetime.now().year,
