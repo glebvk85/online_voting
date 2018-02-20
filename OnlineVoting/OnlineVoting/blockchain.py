@@ -264,11 +264,12 @@ class DataBaseSystem:
 
     def sync_lectures(self):
         for item in self.transactions:
-            if item.hash_contract == 'd1ec5b73915807a3aac8903233bfcbfaaecadf09e3446c68f08a797f189e54a0' or item.hash_contract == 'ce0f16b046cedc269e50ad39540eade7397a10f113d2c4cd2de96d896d264581':
-                item.hash_contract = get_hash_contract('theme')
-            if item.hash_contract == '90e8255cf28c2979b69f2a91439ebd1b765f46884de2ef7d4653e71af6c6b060':
-                item.hash_contract = get_hash_contract('publication')
-            write_transaction(item)
+            if item.type == 'Contract':
+                if item.hash_contract == 'd1ec5b73915807a3aac8903233bfcbfaaecadf09e3446c68f08a797f189e54a0' or item.hash_contract == 'ce0f16b046cedc269e50ad39540eade7397a10f113d2c4cd2de96d896d264581':
+                    item.hash_contract = get_hash_contract('theme')
+                if item.hash_contract == '90e8255cf28c2979b69f2a91439ebd1b765f46884de2ef7d4653e71af6c6b060':
+                    item.hash_contract = get_hash_contract('publication')
+                write_transaction(item)
         # sync new lectures
         for item in self.allCards:
             contract = self.get_lecture_contract(item.id)
