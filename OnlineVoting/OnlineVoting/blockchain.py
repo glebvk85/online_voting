@@ -232,7 +232,11 @@ class DataBaseSystem:
                 if item.hash_contract == hash_speaker_contract:
                     parent = self.get_contract(item.parent_contract_id)
                     data = 'set speaker(s) {0}'.format([self.get_trello_member(x).full_name for x in item.parameters_contract])
-                    yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
+                    if parent is None:
+                        yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data,
+                                        item.id)
+                    else:
+                        yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
             if item.type == 'Transfer':
                 owner = self.get_contract(item.owner_contract_id)
                 yield InfoModel(item.timestamp, self.get_trello_member(owner.creator_address).full_name, 'closed',
