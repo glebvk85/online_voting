@@ -239,6 +239,8 @@ class DataBaseSystem:
                         yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
             if item.type == 'Transfer':
                 owner = self.get_contract(item.owner_contract_id)
+                if owner is None:
+                    continue
                 yield InfoModel(item.timestamp, self.get_trello_member(owner.creator_address).full_name, 'closed',
                                 self.get_trello_card(owner.parameters_contract[0]).name)
                 for pay in item.transfers:
