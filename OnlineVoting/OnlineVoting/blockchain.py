@@ -232,15 +232,9 @@ class DataBaseSystem:
                 if item.hash_contract == hash_speaker_contract:
                     parent = self.get_contract(item.parent_contract_id)
                     data = 'set speaker(s) {0}'.format([self.get_trello_member(x).full_name for x in item.parameters_contract])
-                    if parent is None:
-                        yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data,
-                                        item.id)
-                    else:
-                        yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
+                    yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
             if item.type == 'Transfer':
                 owner = self.get_contract(item.owner_contract_id)
-                if owner is None:
-                    continue
                 yield InfoModel(item.timestamp, self.get_trello_member(owner.creator_address).full_name, 'closed',
                                 self.get_trello_card(owner.parameters_contract[0]).name)
                 for pay in item.transfers:
@@ -276,6 +270,7 @@ class DataBaseSystem:
                 if item.hash_contract == '90e8255cf28c2979b69f2a91439ebd1b765f46884de2ef7d4653e71af6c6b060':
                     item.hash_contract = get_hash_contract('publication')
                 write_transaction(item)
+        return
         # sync new lectures
         for item in self.allCards:
             contract = self.get_lecture_contract(item.id)
