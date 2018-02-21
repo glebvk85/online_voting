@@ -190,7 +190,7 @@ def history_balance():
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
         list=db.history_balance(user),
-        header='System'
+        header='History balance'
     )
 
 

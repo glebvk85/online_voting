@@ -4,6 +4,7 @@
 
 
 {% if is_auth %}
+<h3>{{header}}</h3>
 
 {% for item in list %}
 {{item.memberName}} ({{item.username}}): <b>{{item.count}}</b><br>
