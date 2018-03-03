@@ -46,7 +46,6 @@ def get_new_contracts(transactions, cards, members):
                 card.fetch_actions()
                 member_id = get_creator_card(card.actions)
                 contract = create_theme_contract(member_id, card.id)
-                contract.timestamp = int(time.mktime(card.card_created_date.timetuple()))
                 yield card, contract
         # sync new speakers
         if contract is not None:
@@ -91,13 +90,15 @@ def theme_is_finished(cards, trello_card_id):
     return False if card is None else card.list_id == '5a03de5bfc228ec8e0608389'
 
 
-def get_info(transactions, cards, members):
+def get_info(transactions, cards, members, where=None):
     hash_theme_contract = get_hash_contract('theme')
     hash_vote_contract = get_hash_contract('vote')
     hash_publication_contract = get_hash_contract('publication')
     hash_feedback_contract = get_hash_contract('feedback')
     hash_speaker_contract = get_hash_contract('speaker')
     for item in transactions:
+        if where is not None and not where(item):
+            continue
         if item.type == 'Contract':
             if item.hash_contract == hash_theme_contract:
                 yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, 'create theme', get_trello_card(cards, item.parameters_contract[0]).name)

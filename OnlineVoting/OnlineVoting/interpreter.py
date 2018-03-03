@@ -75,8 +75,9 @@ def run_contracts(transactions, cards, members):
             contract = run_chain_contracts(item, lambda x: theme_is_finished(cards, x), lambda x: get_child_contracts(transactions, x))
             if contract is not None:
                 write_transaction(contract)
-                transactions.insert(0, contract)
-                response.append(get_info(transactions, cards, members).__next__())
+                transactions.append(contract)
+                for item in get_info(transactions, cards, members, lambda x: contract.id == x.id):
+                    response.append(item)
     return response
 
 
@@ -85,7 +86,8 @@ def preview_run_contracts(transactions, cards, members):
         if item.type == 'Contract':
             contract = run_chain_contracts(item, lambda x: theme_is_finished(cards, x), lambda x: get_child_contracts(transactions, x))
             if contract is not None:
-                transactions.insert(0, contract)
-                yield get_info(transactions, cards, members).__next__()
+                transactions.append(contract)
+                for item in get_info(transactions, cards, members, lambda x: contract.id == x.id):
+                    yield item
 
 
