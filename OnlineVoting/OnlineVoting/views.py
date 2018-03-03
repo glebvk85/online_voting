@@ -7,6 +7,7 @@ from OnlineVoting import app
 from OnlineVoting.trello import TrelloProvider
 from OnlineVoting.blockchain import DataBaseSystem
 from flask import Response
+from OnlineVoting.extractors import *
 
 
 @app.route('/')
@@ -20,7 +21,7 @@ def home():
 
     return render_template(
         'index.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
@@ -41,7 +42,7 @@ def voting():
     db.vote(request.form, user)
     return render_template(
         'voting.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
@@ -61,7 +62,7 @@ def room():
 
     return render_template(
         'room.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
@@ -81,7 +82,7 @@ def create_feedback():
     db.publication(request.form, user)
     return render_template(
         'create_feedback.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth = is_auth,
         user = user,
         count_vote = count_free_votes(db, user),
@@ -101,7 +102,7 @@ def apply_feedback():
     db.feedback(contract.id, user, try_get_value(request.form, 'themeIsActual'), try_get_value(request.form, 'canApply'), try_get_value(request.form, 'qualityInformation'), try_get_value(request.form, 'preparednessAuthor'), try_get_value(request.form, 'canRecommend'))
     return render_template(
         'apply_feedback.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth = is_auth,
         message='Thanks for feedback!',
         user=user,
@@ -124,7 +125,7 @@ def feedback():
     card = db.get_trello_card(contract.parameters_contract[0])
     return render_template(
         'feedback.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth = is_auth,
         user = user,
         count_vote=count_free_votes(db, user),
@@ -146,16 +147,34 @@ def process():
         return error("Unauthorized", None, False)
     if not is_admin(user.username):
         return error("Access denied", user, True)
-    db.sync_lectures()
     return render_template(
-        'system.html',
-        year=datetime.now().year,
+        'info.html',
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
-        debug_print="debug",
-        header='System',
+        header='Success import Trello',
+        items = write_new_lectures(db.transactions, db.allCards, db.allMembers)
+    )
+
+
+@app.route('/update', methods=['GET'])
+def update():
+    is_auth, trello, user, db = initialize()
+    if not is_auth:
+        return error("Unauthorized", None, False)
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+    return render_template(
+        'info.html',
+        year=datetime.datetime.now().year,
+        is_auth=is_auth,
+        user=user,
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
+        header='Preview import from Trello',
+        items = show_new_lectures(db.transactions, db.allCards, db.allMembers)
     )
 
 
@@ -168,14 +187,15 @@ def info():
         return error("Access denied", user, True)
     return render_template(
         'info.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
-        list=db.get_info(),
+        items=db.get_info(),
         header='System'
     )
+
 
 @app.route('/history_balance', methods=['GET'])
 def history_balance():
@@ -184,7 +204,7 @@ def history_balance():
         return error("Unauthorized", None, False)
     return render_template(
         'history_balance.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
@@ -201,7 +221,7 @@ def dashboard():
         return error("Unauthorized", None, False)
     return render_template(
         'dashboard.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
@@ -239,7 +259,7 @@ def run():
     result = db.run_contracts()
     return render_template(
         'run.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
@@ -250,7 +270,7 @@ def run():
 def error(message, user, is_auth):
     return render_template(
         'error.html',
-        year=datetime.now().year,
+        year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         message=message

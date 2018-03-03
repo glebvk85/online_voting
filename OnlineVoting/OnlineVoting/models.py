@@ -23,3 +23,5 @@ class PointModel:
         self.username = username
         self.memberName = memberName
         self.count = count
+
+

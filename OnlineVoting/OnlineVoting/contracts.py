@@ -43,8 +43,8 @@ def is_closed(contract, all_contracts, closed_contracts):
     return False
 
 
-def get_open_contracts(items, hash_contract):
-    sorted_items = sorted(items, key=sort_transaction)
+def get_open_contracts(transactions, hash_contract):
+    sorted_items = sorted(transactions, key=sort_timestamp_transaction)
     contracts = []
     closed_contracts = set()
     for item in sorted_items:
@@ -54,20 +54,20 @@ def get_open_contracts(items, hash_contract):
         if item.type == 'Transfer':
             closed_contracts.add(item.owner_contract_id)
     for item in contracts:
-        if not is_closed(item, items, closed_contracts):
+        if not is_closed(item, transactions, closed_contracts):
             yield item
 
 
-def get_child_contracts(items, contract_id):
-    sorted_items = sorted(items, key=sort_transaction)
+def get_child_contracts(transactions, contract_id):
+    sorted_items = sorted(transactions, key=sort_timestamp_transaction)
     for item in sorted_items:
         if item.type == 'Contract' and item.parent_contract_id == contract_id:
             yield item
 
 
-def get_speaker_contract(items, contract_id):
+def get_speaker_contract(transactions, contract_id):
     hash_contract = get_hash_contract('speaker')
-    for item in get_child_contracts(items, contract_id):
+    for item in get_child_contracts(transactions, contract_id):
         if item.hash_contract == hash_contract:
             return item
 
@@ -91,7 +91,8 @@ def get_hash_contract(name_contract):
     return sha.hexdigest()
 
 
-def get_old_hash_member(trello_member_id, trello_member_name):
-    sha = hashlib.sha256()
-    sha.update((str(trello_member_id) + str(trello_member_name)).encode('utf-8'))
-    return sha.hexdigest()
+def get_lecture_contract(transactions, trello_card_id):
+    hash_contract = get_hash_contract('theme')
+    for item in transactions:
+        if item.type == 'Contract' and item.hash_contract == hash_contract and item.parameters_contract[0] == trello_card_id:
+            return item

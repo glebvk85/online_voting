@@ -262,28 +262,5 @@ class DataBaseSystem:
                             if None not in speakers:
                                 return (item['idMemberCreator'], speakers)
 
-    def sync_lectures(self):
-        # sync new lectures
-        for item in self.allCards:
-            contract = self.get_lecture_contract(item.id)
-            if contract is None:
-                if len(item.member_id) > 0:
-                    item.fetch_actions()
-                    member_id = self.get_creator_card(item.actions)
-                    contract = create_theme_contract(member_id, item.id)
-                    contract.timestamp = int(time.mktime(item.card_created_date.timetuple()))
-                    write_transaction(contract)
-                    self.transactions.append(contract)
-            # add speakers
-            if contract is not None:
-                speaker_contract = get_speaker_contract(self.transactions, contract.id)
-                if speaker_contract is None:
-                    item.fetch_comments(True)
-                    speakers_info = self.import_speakers(item.fetch_comments(True))
-                    if speakers_info is not None:
-                        speaker_contract = create_speaker_contract(speakers_info[0], contract.id, [get_hash_member(x.id) for x in speakers_info[1]])
-                        write_transaction(speaker_contract)
-                        self.transactions.append(speaker_contract)
-
 
 

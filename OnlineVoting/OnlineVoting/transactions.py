@@ -18,7 +18,7 @@ def read_transaction(path_file):
         return Transaction(j = f)
 
 
-def sort_transaction(contract):
+def sort_timestamp_transaction(contract):
     return contract.timestamp
 
 
