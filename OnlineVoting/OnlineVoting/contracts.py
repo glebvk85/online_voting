@@ -96,3 +96,4 @@ def get_lecture_contract(transactions, trello_card_id):
     for item in transactions:
         if item.type == 'Contract' and item.hash_contract == hash_contract and item.parameters_contract[0] == trello_card_id:
             return item
+

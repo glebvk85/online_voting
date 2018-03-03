@@ -81,9 +81,14 @@ def write_new_lectures(transactions, cards, members):
     response = []
     for card, contract in get_new_contracts(transactions, cards, members):
         write_transaction(contract)
-        transactions.append(contract)
-        response.append(get_info(transactions, cards, members))
+        transactions.insert(0, contract)
+        response.append(get_info(transactions, cards, members).__next__())
     return response
+
+
+def theme_is_finished(cards, trello_card_id):
+    card = get_trello_card(cards, trello_card_id)
+    return False if card is None else card.list_id == '5a03de5bfc228ec8e0608389'
 
 
 def get_info(transactions, cards, members):

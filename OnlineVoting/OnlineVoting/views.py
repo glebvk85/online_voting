@@ -8,6 +8,8 @@ from OnlineVoting.trello import TrelloProvider
 from OnlineVoting.blockchain import DataBaseSystem
 from flask import Response
 from OnlineVoting.extractors import *
+from OnlineVoting.contracts import *
+from OnlineVoting.interpreter import preview_run_contracts, run_contracts
 
 
 @app.route('/')
@@ -140,8 +142,8 @@ def feedback():
     )
 
 
-@app.route('/system', methods=['GET'])
-def process():
+@app.route('/update-commit', methods=['GET'])
+def update_commit():
     is_auth, trello, user, db = initialize()
     if not is_auth:
         return error("Unauthorized", None, False)
@@ -192,7 +194,7 @@ def info():
         user=user,
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
-        items=db.get_info(),
+        items=get_info(sorted(db.transactions, key=sort_timestamp_transaction), db.allCards, db.allMembers),
         header='System'
     )
 
@@ -256,15 +258,33 @@ def run():
         return error("Unauthorized", None, False)
     if not is_admin(user.username):
         return error("Access denied", user, True)
-    result = db.run_contracts()
     return render_template(
-        'run.html',
+        'info.html',
         year=datetime.datetime.now().year,
         is_auth=is_auth,
         user=user,
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
-        result=result)
+        header='Contracts complete',
+        items=preview_run_contracts(db.transactions, db.allCards, db.allMembers))
+
+
+@app.route('/run-commit', methods=['GET'])
+def run_commit():
+    is_auth, trello, user, db = initialize()
+    if not is_auth:
+        return error("Unauthorized", None, False)
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+    return render_template(
+        'info.html',
+        year=datetime.datetime.now().year,
+        is_auth=is_auth,
+        user=user,
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
+        header='Contracts closed',
+        items=run_contracts(db.transactions, db.allCards, db.allMembers))
 
 
 def error(message, user, is_auth):

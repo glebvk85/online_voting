@@ -68,21 +68,6 @@ class DataBaseSystem:
             votes.setdefault(member_hash, [])
             yield PointModel(i.username, i.full_name, max_votes - sum(votes[member_hash]))
 
-    def get_child_contracts(self, contract_id):
-        return get_child_contracts(self.transactions, contract_id)
-
-    def theme_is_finished(self, trello_card_id):
-        card = self.get_trello_card(trello_card_id)
-        return False if card is None else card.list_id == '5a03de5bfc228ec8e0608389'
-
-    def run_contracts(self):
-        for item in get_open_contracts(self.transactions, get_hash_contract('theme')):
-            if item.type == 'Contract':
-                result = run_chain_contracts(item, self.theme_is_finished, self.get_child_contracts)
-                if result is not None:
-                    write_transaction(result)
-                    self.transactions.append(result)
-
     def get_themes_by_user(self, member):
         member_hash = get_hash_member(member.id)
         contracts = get_open_contracts(self.transactions, get_hash_contract('theme'))
@@ -161,7 +146,7 @@ class DataBaseSystem:
                 yield VotingModel(item.id, speakers, card.name, item.timestamp, card.url)
 
     def get_all_publications(self):
-        sorted_items = sorted(self.transactions, key=sort_transaction)
+        sorted_items = sorted(self.transactions, key=sort_timestamp_transaction)
         for item in sorted_items:
             if item.type == 'Contract' and item.hash_contract == get_hash_contract('publication'):
                 parent = self.get_contract(item.parent_contract_id)
@@ -205,62 +190,6 @@ class DataBaseSystem:
         card = self.get_trello_card(lecture.parameters_contract[0])
         card.comment('Feedback: | {} |'.format(' | '.join([str(theme_is_actual), str(can_apply), str(quality_information), str(preparedness_author), str(can_recommend)])))
 
-    def get_info(self):
-        sorted_list = sorted(self.transactions, key=sort_transaction)
-        hash_theme_contract = get_hash_contract('theme')
-        hash_vote_contract = get_hash_contract('vote')
-        hash_publication_contract = get_hash_contract('publication')
-        hash_feedback_contract = get_hash_contract('feedback')
-        hash_speaker_contract = get_hash_contract('speaker')
-        for item in sorted_list:
-            if item.type == 'Contract':
-                # yield  InfoModel(item.timestamp, item.id, 'has parent', item.parent_contract_id)
-                if item.hash_contract == hash_theme_contract:
-                    yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, 'create theme', self.get_trello_card(item.parameters_contract[0]).name)
-                if item.hash_contract == hash_vote_contract:
-                    parent = self.get_contract(item.parent_contract_id)
-                    yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, 'vote', self.get_trello_card(parent.parameters_contract[0]).name)
-                if item.hash_contract == hash_publication_contract:
-                    parent = self.get_contract(item.parent_contract_id)
-                    yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, 'publication', self.get_trello_card(parent.parameters_contract[0]).name)
-                if item.hash_contract == hash_feedback_contract:
-                    parent = self.get_contract(item.parent_contract_id)
-                    parent = self.get_contract(parent.parent_contract_id)
-                    points = ' '.join(str(x) for x in item.parameters_contract)
-                    data = 'feedback - [{0}]'.format(points)
-                    yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
-                if item.hash_contract == hash_speaker_contract:
-                    parent = self.get_contract(item.parent_contract_id)
-                    data = 'set speaker(s) {0}'.format([self.get_trello_member(x).full_name for x in item.parameters_contract])
-                    yield InfoModel(item.timestamp, self.get_trello_member(item.creator_address).full_name, data, self.get_trello_card(parent.parameters_contract[0]).name)
-            if item.type == 'Transfer':
-                owner = self.get_contract(item.owner_contract_id)
-                yield InfoModel(item.timestamp, self.get_trello_member(owner.creator_address).full_name, 'closed',
-                                self.get_trello_card(owner.parameters_contract[0]).name)
-                for pay in item.transfers:
-                    member_from = 'Get' if pay[0] is None else self.get_trello_member(pay[0]).full_name
-                    member_to = self.get_trello_member(pay[1]).full_name
-                    count = pay[2]
-                    yield InfoModel(item.timestamp, member_to, 'gets {} by'.format(count/1000), self.get_trello_card(owner.parameters_contract[0]).name)
-
-    def get_creator_card(self, actions):
-        for item in actions:
-            if item['type'] == 'createCard':
-                return item['idMemberCreator']
-
-    def import_speakers(self, comments):
-        if comments is not None:
-            for item in comments:
-                if item['type'] == 'commentCard':
-                    text_comment = item['data']['text']
-                    authors = text_comment.strip().split(' ')
-                    if len(authors) > 0:
-                        is_authors_comment = sum([len(x) > 0 and x[0] == '@' for x in authors]) == len(authors)
-                        if is_authors_comment:
-                            authors = [x[1:] for x in authors]
-                            speakers = [self.get_trello_member_by_username(x) for x in authors]
-                            if None not in speakers:
-                                return (item['idMemberCreator'], speakers)
 
 
 

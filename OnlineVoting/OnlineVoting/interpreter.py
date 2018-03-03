@@ -1,5 +1,6 @@
-from OnlineVoting.contracts import read_blockchain_contract, create_pay, get_hash_contract
+from OnlineVoting.contracts import read_blockchain_contract, create_pay, get_hash_contract, get_open_contracts, write_transaction, get_child_contracts
 from OnlineVoting.transactions import TransferInfo
+from OnlineVoting.extractors import theme_is_finished, get_info
 import statistics
 
 
@@ -65,5 +66,26 @@ def exec_contract(text, _locals):
     complete = _locals['complete']
 
     return need_close, complete
+
+
+def run_contracts(transactions, cards, members):
+    response = []
+    for item in get_open_contracts(transactions, get_hash_contract('theme')):
+        if item.type == 'Contract':
+            contract = run_chain_contracts(item, lambda x: theme_is_finished(cards, x), lambda x: get_child_contracts(transactions, x))
+            if contract is not None:
+                write_transaction(contract)
+                transactions.insert(0, contract)
+                response.append(get_info(transactions, cards, members).__next__())
+    return response
+
+
+def preview_run_contracts(transactions, cards, members):
+    for item in get_open_contracts(transactions, get_hash_contract('theme')):
+        if item.type == 'Contract':
+            contract = run_chain_contracts(item, lambda x: theme_is_finished(cards, x), lambda x: get_child_contracts(transactions, x))
+            if contract is not None:
+                transactions.insert(0, contract)
+                yield get_info(transactions, cards, members).__next__()
 
 
