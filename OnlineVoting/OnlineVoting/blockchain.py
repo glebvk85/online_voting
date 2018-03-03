@@ -45,18 +45,6 @@ class DataBaseSystem:
                         balance += pay[2]
         return balance / 1000
 
-    def history_balance(self, member):
-        if member is None:
-            return None
-        member_hash = get_hash_member(member.id)
-        for item in self.transactions:
-            if item.type == 'Transfer':
-                for pay in item.transfers:
-                    if pay[1] == member_hash:
-                        contract = self.get_contract(item.owner_contract_id)
-                        card = self.get_trello_card(contract.parameters_contract[0])
-                        speakers = self.get_speakers(item.owner_contract_id)
-                        yield PointModel(speakers, card.name, pay[2]/1000)
 
     def get_all_free_votes(self):
         max_votes = 2
@@ -109,16 +97,6 @@ class DataBaseSystem:
         for item in self.allMembers:
             if item.username == trello_username:
                 return item
-
-    def get_speakers(self, theme_contract_id):
-        speakers = '(no speaker)'
-        speaker_contract = get_speaker_contract(self.transactions, theme_contract_id)
-        if speaker_contract is not None:
-            speakers_info = []
-            for sp in speaker_contract.parameters_contract:
-                speakers_info.append(self.get_trello_member(sp).full_name)
-                speakers = ', '.join(speakers_info)
-        return speakers
 
     def get_voting_list(self):
         hash_theme_contract = get_hash_contract('theme')

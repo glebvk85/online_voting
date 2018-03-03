@@ -199,7 +199,7 @@ def info():
     )
 
 
-@app.route('/history_balance', methods=['GET'])
+@app.route('/history-balance', methods=['GET'])
 def history_balance():
     is_auth, trello, user, db = initialize()
     if not is_auth:
@@ -234,7 +234,7 @@ def dashboard():
     )
 
 
-@app.route('/feedback_export.csv')
+@app.route('/feedback-export.csv')
 def feedback_export():
     is_auth, trello, user, db = initialize()
     if not is_auth:

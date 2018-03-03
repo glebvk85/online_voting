@@ -130,3 +130,28 @@ def get_info(transactions, cards, members):
                 yield InfoModel(item.timestamp, member_to, 'gets {} by'.format(count/1000), get_trello_card(cards, owner.parameters_contract[0]).name)
         else:
             yield InfoModel(item.timestamp, item.id, item.type, item.version)
+
+
+def get_speakers(transactions, members, theme_contract_id):
+    speakers = '(no speaker)'
+    speaker_contract = get_speaker_contract(transactions, theme_contract_id)
+    if speaker_contract is not None:
+        speakers_info = []
+        for sp in speaker_contract.parameters_contract:
+            speakers_info.append(get_trello_member(members, sp).full_name)
+            speakers = ', '.join(speakers_info)
+    return speakers
+
+
+def history_balance(transactions, cards, members, member):
+    if member is None:
+        return None
+    member_hash = get_hash_member(member.id)
+    for item in transactions:
+        if item.type == 'Transfer':
+            for pay in item.transfers:
+                if pay[1] == member_hash:
+                    contract = get_contract(transactions, item.owner_contract_id)
+                    card = get_trello_card(cards, contract.parameters_contract[0])
+                    speakers = get_speakers(transactions, members, item.owner_contract_id)
+                    yield PointModel(speakers, card.name, pay[2]/1000)
