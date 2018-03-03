@@ -98,6 +98,16 @@ class DataBaseSystem:
             if item.username == trello_username:
                 return item
 
+    def get_speakers(self, theme_contract_id):
+        speakers = '(no speaker)'
+        speaker_contract = get_speaker_contract(self.transactions, theme_contract_id)
+        if speaker_contract is not None:
+            speakers_info = []
+            for sp in speaker_contract.parameters_contract:
+                speakers_info.append(self.get_trello_member(sp).full_name)
+                speakers = ', '.join(speakers_info)
+        return speakers
+
     def get_voting_list(self):
         hash_theme_contract = get_hash_contract('theme')
         for item in get_open_contracts(self.transactions, hash_theme_contract):
