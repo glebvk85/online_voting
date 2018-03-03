@@ -248,7 +248,7 @@ def feedback_export():
             points = ','.join([str(x) for x in row.parameters_contract])
             yield author + ',' + points + '\n'
 
-    return Response(generate(db.get_child_contracts(request.values['id'])), mimetype='text/csv')
+    return Response(generate(get_child_contracts(db.transactions, request.values['id'])), mimetype='text/csv')
 
 
 @app.route('/run', methods=['GET'])
