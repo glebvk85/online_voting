@@ -144,7 +144,7 @@ def get_speakers(transactions, members, theme_contract_id):
     return speakers
 
 
-def history_balance(transactions, cards, members, member):
+def show_history_balance(transactions, cards, members, member):
     if member is None:
         return None
     member_hash = get_hash_member(member.id)

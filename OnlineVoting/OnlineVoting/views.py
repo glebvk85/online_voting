@@ -211,7 +211,7 @@ def history_balance():
         user=user,
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
-        list=db.history_balance(user),
+        list=show_history_balance(db.transactions, db.allCards, db.allMembers, user),
         header='History balance'
     )
 
