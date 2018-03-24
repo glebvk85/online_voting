@@ -73,11 +73,8 @@ def get_contract(transactions, contract_id):
 def show_new_lectures(transactions, cards, members):
     for item in transactions:
         if item.type == 'Contract':
-            if item.hash_contract == 'a737cefcd559327e23aa43ef4ce6393894025184627422d5456c169a3cdb77e4':
+            if item.hash_contract == '26bdb79ec40fcde72a061b5421cc8c26e04f9ce2ac77bf18668d5d35afc0de76':
                 item.hash_contract = get_hash_contract('theme')
-                write_transaction(item)
-            if item.hash_contract == '351c31a3ecc43146586adadce90a1567eb41c845bbaef1e4cbacd954c7866412':
-                item.hash_contract = get_hash_contract('publication')
                 write_transaction(item)
     for card, contract in get_new_contracts(transactions, cards, members):
         transactions.insert(0, contract)
