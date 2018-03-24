@@ -71,11 +71,6 @@ def get_contract(transactions, contract_id):
 
 
 def show_new_lectures(transactions, cards, members):
-    for item in transactions:
-        if item.type == 'Contract':
-            if item.hash_contract == '26bdb79ec40fcde72a061b5421cc8c26e04f9ce2ac77bf18668d5d35afc0de76':
-                item.hash_contract = get_hash_contract('theme')
-                write_transaction(item)
     for card, contract in get_new_contracts(transactions, cards, members):
         transactions.insert(0, contract)
         yield get_info(transactions, cards, members).__next__()
