@@ -14,9 +14,9 @@ if complete:
     sum_of_votes = sum(votes)
     count_of_speakers = len(speakers)
     count_of_investors = len(investors)
-    total_bonus = sum_of_votes + sum(publication_points)
+    total_bonus = (1 + 0.5 * sum_of_votes) * sum(publication_points)
     if count_of_speakers + count_of_investors != 0:
-        if count_of_speakers <= count_of_investors:
+        if count_of_investors <= count_of_speakers:
             bonus_speaker = total_bonus / (count_of_speakers + count_of_investors)
             bonus_investor = bonus_speaker
         else:

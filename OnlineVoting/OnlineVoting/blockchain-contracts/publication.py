@@ -15,6 +15,6 @@ sum_of_feedbacks = 0
 for item in columns:
     sum_of_feedbacks += median(item)
 if len(columns) != 0:
-    sum_of_feedbacks = sum_of_feedbacks / (len(columns) * 10)
+    sum_of_feedbacks = len(feedbacks) * sum_of_feedbacks / (len(columns) * 10)
 publication_points.append(sum_of_feedbacks)
 set_value(variables, 'feedbacks', [])
