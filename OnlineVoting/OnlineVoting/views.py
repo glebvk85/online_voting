@@ -302,7 +302,8 @@ def give_bounty():
             or ('count' not in request.form):
         return error('Incorrect values', user, is_auth)
 
-    create_bounty(user, db.allMembers, request.form['username'], request.form['description'], request.form['count'])
+    if not create_bounty(user, db.allMembers, request.form['username'], request.form['description'], request.form['count']):
+        return error('Incorrect values', user, is_auth)
     return render_template(
         'info.html',
         year=datetime.datetime.now().year,
