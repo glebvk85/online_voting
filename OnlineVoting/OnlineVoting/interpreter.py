@@ -29,6 +29,7 @@ def get_code_contract(contract_hash):
     hashes[get_hash_contract('speaker')] = 'speaker'
     hashes[get_hash_contract('theme')] = 'theme'
     hashes[get_hash_contract('vote')] = 'vote'
+    hashes[get_hash_contract('bounty')] = 'bounty'
 
     return read_blockchain_contract(hashes[contract_hash])
 
@@ -70,7 +71,7 @@ def exec_contract(text, _locals):
 
 def run_contracts(transactions, cards, members):
     response = []
-    for item in get_open_contracts(transactions, get_hash_contract('theme')):
+    for item in get_open_contracts(transactions):
         if item.type == 'Contract':
             contract = run_chain_contracts(item, lambda x: theme_is_finished(cards, x), lambda x: get_child_contracts(transactions, x))
             if contract is not None:
@@ -82,7 +83,7 @@ def run_contracts(transactions, cards, members):
 
 
 def preview_run_contracts(transactions, cards, members):
-    for item in get_open_contracts(transactions, get_hash_contract('theme')):
+    for item in get_open_contracts(transactions):
         if item.type == 'Contract':
             contract = run_chain_contracts(item, lambda x: theme_is_finished(cards, x), lambda x: get_child_contracts(transactions, x))
             if contract is not None:

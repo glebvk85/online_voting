@@ -10,6 +10,11 @@ def vote(trello_member_id, contract_id):
     return Contract(get_hash_member(trello_member_id), get_hash_contract('vote'), [1], contract_id)
 
 
+def create_bounty_contract(owner_trello_member_id, recipient_trello_member_id, description, count):
+    return Contract(get_hash_member(owner_trello_member_id), get_hash_contract('bounty'),
+                    [get_hash_member(recipient_trello_member_id), description, count])
+
+
 def create_publication_contract(member_hash, contract_id):
     return Contract(member_hash, get_hash_contract('publication'), [], contract_id)
 
@@ -43,13 +48,13 @@ def is_closed(contract, all_contracts, closed_contracts):
     return False
 
 
-def get_open_contracts(transactions, hash_contract):
+def get_open_contracts(transactions, hash_contract=None):
     sorted_items = sorted(transactions, key=sort_timestamp_transaction)
     contracts = []
     closed_contracts = set()
     for item in sorted_items:
         if item.type == 'Contract':
-            if item.hash_contract == hash_contract:
+            if hash_contract is None or item.hash_contract == hash_contract:
                 contracts.append(item)
         if item.type == 'Transfer':
             closed_contracts.add(item.owner_contract_id)

@@ -4,15 +4,29 @@
 
 
 {% if is_auth %}
-
+<h3>Users</h3>
 {% for item in list %}
 {{item.memberName}} ({{item.username}}): <b>{{item.count}}</b><br>
 {% endfor %}
 
+<h3>Publications</h3>
 {% for item in publications %}
 <a href="{{ url_for('feedback_export', id=item.id) }}">{{item.timestamp}} -- {{item.authorName}} -- {{item.themeName}}</a><br/>
-
 {% endfor %}
+
+<h3>Give bounty</h3>
+<form action="{{ url_for('give_bounty') }}" method=post>
+    <label for="username">Username: </label>
+    <input type="text" id="username" name="username" placeholder="Enter username">
+    <br>
+    <label for="description">Description: </label>
+    <input type="text" id="description" name="description" placeholder="Enter description">
+    <br>
+    <label for="count">Points: </label>
+    <input type="text" id="count" name="count" placeholder="Enter count points">
+    <br>
+    <button type="submit">Give!</button>
+</form>
 
 {% endif %}
 {% endblock %}

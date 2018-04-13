@@ -76,7 +76,7 @@ def room():
     )
 
 
-@app.route('/create_feedback', methods=['POST'])
+@app.route('/create-feedback', methods=['POST'])
 def create_feedback():
     is_auth, trello, user, db = initialize()
     if not is_auth:
@@ -93,7 +93,7 @@ def create_feedback():
     )
 
 
-@app.route('/apply_feedback', methods=['POST'])
+@app.route('/apply-feedback', methods=['POST'])
 def apply_feedback():
     is_auth, trello, user, db = initialize()
     if not is_auth:
@@ -266,7 +266,8 @@ def run():
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
         header='Contracts complete',
-        items=preview_run_contracts(db.transactions, db.allCards, db.allMembers))
+        items=preview_run_contracts(db.transactions, db.allCards, db.allMembers)
+    )
 
 
 @app.route('/run-commit', methods=['GET'])
@@ -284,7 +285,33 @@ def run_commit():
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
         header='Contracts closed',
-        items=run_contracts(db.transactions, db.allCards, db.allMembers))
+        items=run_contracts(db.transactions, db.allCards, db.allMembers)
+    )
+
+
+@app.route('/give-bounty', methods=['POST'])
+def give_bounty():
+    is_auth, trello, user, db = initialize()
+    if not is_auth:
+        return error("Unauthorized", None, False)
+    if not is_admin(user.username):
+        return error("Access denied", user, True)
+
+    if ('username' not in request.form)\
+            or ('description' not in request.form)\
+            or ('count' not in request.form):
+        return error('Incorrect values', user, is_auth)
+
+    create_bounty(user, db.allMembers, request.form['username'], request.form['description'], request.form['count'])
+    return render_template(
+        'info.html',
+        year=datetime.datetime.now().year,
+        is_auth=is_auth,
+        user=user,
+        count_vote=count_free_votes(db, user),
+        count_points=count_coins(db, user),
+        header='Bounty issued'
+    )
 
 
 def error(message, user, is_auth):

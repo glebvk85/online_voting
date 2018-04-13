@@ -90,12 +90,15 @@ def theme_is_finished(cards, trello_card_id):
     return False if card is None else card.list_id == '5a03de5bfc228ec8e0608389'
 
 
+hash_theme_contract = get_hash_contract('theme')
+hash_vote_contract = get_hash_contract('vote')
+hash_publication_contract = get_hash_contract('publication')
+hash_feedback_contract = get_hash_contract('feedback')
+hash_speaker_contract = get_hash_contract('speaker')
+hash_bounty_contract = get_hash_contract('bounty')
+
+
 def get_info(transactions, cards, members, where=None):
-    hash_theme_contract = get_hash_contract('theme')
-    hash_vote_contract = get_hash_contract('vote')
-    hash_publication_contract = get_hash_contract('publication')
-    hash_feedback_contract = get_hash_contract('feedback')
-    hash_speaker_contract = get_hash_contract('speaker')
     for item in transactions:
         if where is not None and not where(item):
             continue
@@ -118,19 +121,29 @@ def get_info(transactions, cards, members, where=None):
                 parent = get_contract(transactions, item.parent_contract_id)
                 data = 'set speaker(s) {0}'.format([get_trello_member(members, x).full_name for x in item.parameters_contract])
                 yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, data, get_trello_card(cards, parent.parameters_contract[0]).name)
+            elif item.hash_contract == hash_bounty_contract:
+                yield InfoModel(item.timestamp, get_trello_member(members, item.parameters_contract[0]).full_name, 'will receive {} by'.format(item.parameters_contract[2]), item.parameters_contract[1])
             else:
                 yield InfoModel(item.timestamp, item.id, item.type, item.version)
         elif item.type == 'Transfer':
             owner = get_contract(transactions, item.owner_contract_id)
-            yield InfoModel(item.timestamp, get_trello_member(members, owner.creator_address).full_name, 'closed',
+            if owner.hash_contract == hash_theme_contract:
+                yield InfoModel(item.timestamp, get_trello_member(members, owner.creator_address).full_name, 'closed',
                             get_trello_card(cards, owner.parameters_contract[0]).name)
             for pay in item.transfers:
                 member_from = 'Get' if pay[0] is None else get_trello_member(members, pay[0]).full_name
                 member_to = get_trello_member(members, pay[1]).full_name
                 count = pay[2]
-                yield InfoModel(item.timestamp, member_to, 'gets {} by'.format(count/1000), get_trello_card(cards, owner.parameters_contract[0]).name)
+                yield InfoModel(item.timestamp, member_to, 'gets {} by'.format(count/1000), get_description_transfer(cards, owner))
         else:
             yield InfoModel(item.timestamp, item.id, item.type, item.version)
+
+
+def get_description_transfer(cards, owner):
+    if owner.hash_contract == hash_theme_contract:
+        return get_trello_card(cards, owner.parameters_contract[0]).name
+    if owner.hash_contract == hash_bounty_contract:
+        return owner.parameters_contract[1]
 
 
 def get_speakers(transactions, members, theme_contract_id):
@@ -156,3 +169,16 @@ def show_history_balance(transactions, cards, members, member):
                     card = get_trello_card(cards, contract.parameters_contract[0])
                     speakers = get_speakers(transactions, members, item.owner_contract_id)
                     yield PointModel(speakers, card.name, pay[2]/1000)
+
+
+def create_bounty(owner, members, username, description, count):
+    user = get_trello_member_by_username(members, username)
+    if user is None:
+        return False
+    try:
+        count_point = float(count)
+    except ValueError:
+        return False
+
+    contract = create_bounty_contract(owner.id, user.id, description, count_point)
+    write_transaction(contract)
