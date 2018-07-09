@@ -229,6 +229,7 @@ def dashboard():
         count_vote=count_free_votes(db, user),
         count_points=count_coins(db, user),
         list=db.get_all_free_votes(),
+        points = db.list_count_all_coins(),
         publications=db.get_all_publications(),
         header='System'
     )

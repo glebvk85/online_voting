@@ -4,7 +4,6 @@ import time
 import os
 from uuid import uuid4
 from collections import defaultdict
-from OnlineVoting.blockchain import *
 from OnlineVoting.contracts import *
 from OnlineVoting.models import *
 from OnlineVoting.transactions import *
@@ -44,6 +43,18 @@ class DataBaseSystem:
                     if pay[1] == member_hash:
                         balance += pay[2]
         return balance / 1000
+
+    def list_count_all_coins(self):
+        coins = defaultdict()
+        for item in self.transactions:
+            if item.type == 'Transfer':
+                for pay in item.transfers:
+                    coins.setdefault(pay[1], 0)
+                    coins[pay[1]] += pay[2]
+        for i in self.allMembers:
+            member_hash = get_hash_member(i.id)
+            coins.setdefault(member_hash, 0)
+            yield PointModel(i.username, i.full_name, coins[member_hash] / 1000)
 
 
     def get_all_free_votes(self):

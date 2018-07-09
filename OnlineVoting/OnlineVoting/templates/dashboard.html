@@ -9,6 +9,11 @@
 {{item.memberName}} ({{item.username}}): <b>{{item.count}}</b><br>
 {% endfor %}
 
+<h3>Points</h3>
+{% for item in points %}
+{{item.memberName}} ({{item.username}}): <b>{{item.count}}</b><br>
+{% endfor %}
+
 <h3>Publications</h3>
 {% for item in publications %}
 <a href="{{ url_for('feedback_export', id=item.id) }}">{{item.timestamp}} -- {{item.authorName}} -- {{item.themeName}}</a><br/>
