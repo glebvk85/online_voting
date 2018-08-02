@@ -104,23 +104,43 @@ def get_info(transactions, cards, members, where=None):
             continue
         if item.type == 'Contract':
             if item.hash_contract == hash_theme_contract:
-                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, 'create theme', get_trello_card(cards, item.parameters_contract[0]).name)
+                card = get_trello_card(cards, item.parameters_contract[0])
+                # TODO: removed card
+                if card is None:
+                    continue
+                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, 'create theme', card.name)
             elif item.hash_contract == hash_vote_contract:
                 parent = get_contract(transactions, item.parent_contract_id)
-                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, 'vote', get_trello_card(cards, parent.parameters_contract[0]).name)
+                card = get_trello_card(cards, parent.parameters_contract[0])
+                # TODO: removed card
+                if card is None:
+                    continue
+                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, 'vote', card.name)
             elif item.hash_contract == hash_publication_contract:
                 parent = get_contract(transactions, item.parent_contract_id)
-                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, 'publication', get_trello_card(cards, parent.parameters_contract[0]).name)
+                card = get_trello_card(cards, parent.parameters_contract[0])
+                # TODO: removed card
+                if card is None:
+                    continue
+                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, 'publication', card.name)
             elif item.hash_contract == hash_feedback_contract:
                 parent = get_contract(transactions, item.parent_contract_id)
                 parent = get_contract(transactions, parent.parent_contract_id)
                 points = ' '.join(str(x) for x in item.parameters_contract)
                 data = 'feedback - [{0}]'.format(points)
-                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, data, get_trello_card(cards, parent.parameters_contract[0]).name)
+                card = get_trello_card(cards, parent.parameters_contract[0])
+                # TODO: removed card
+                if card is None:
+                    continue
+                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, data, card.name)
             elif item.hash_contract == hash_speaker_contract:
                 parent = get_contract(transactions, item.parent_contract_id)
                 data = 'set speaker(s) {0}'.format([get_trello_member(members, x).full_name for x in item.parameters_contract])
-                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, data, get_trello_card(cards, parent.parameters_contract[0]).name)
+                card = get_trello_card(cards, parent.parameters_contract[0])
+                # TODO: removed card
+                if card is None:
+                    continue
+                yield InfoModel(item.timestamp, get_trello_member(members, item.creator_address).full_name, data, card.name)
             elif item.hash_contract == hash_bounty_contract:
                 yield InfoModel(item.timestamp, get_trello_member(members, item.parameters_contract[0]).full_name, 'will receive {} by'.format(item.parameters_contract[2]), item.parameters_contract[1])
             else:
