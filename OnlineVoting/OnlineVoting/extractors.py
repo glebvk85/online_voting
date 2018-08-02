@@ -167,6 +167,9 @@ def show_history_balance(transactions, cards, members, member):
                 if pay[1] == member_hash:
                     contract = get_contract(transactions, item.owner_contract_id)
                     card = get_trello_card(cards, contract.parameters_contract[0])
+                    # TODO: removed card
+                    if card is None:
+                        continue
                     speakers = get_speakers(transactions, members, item.owner_contract_id)
                     yield PointModel(speakers, card.name, pay[2]/1000)
 

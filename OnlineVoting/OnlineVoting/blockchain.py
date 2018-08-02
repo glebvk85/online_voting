@@ -74,6 +74,9 @@ class DataBaseSystem:
             speaker_contract = get_speaker_contract(self.transactions, item.id)
             if speaker_contract is not None and member_hash in speaker_contract.parameters_contract:
                 card = self.get_trello_card(item.parameters_contract[0])
+                #TODO: removed card
+                if card is None:
+                    continue
                 yield VotingModel(item.id, member.full_name, card.name, item.timestamp, card.short_url)
 
     def get_contract(self, contract_id):
@@ -122,8 +125,11 @@ class DataBaseSystem:
     def get_voting_list(self):
         hash_theme_contract = get_hash_contract('theme')
         for item in get_open_contracts(self.transactions, hash_theme_contract):
-            if self.get_trello_card(item.parameters_contract[0]).list_id == TrelloProvider.listIncomingId:
-                card = self.get_trello_card(item.parameters_contract[0])
+            card = self.get_trello_card(item.parameters_contract[0])
+            # TODO: removed card
+            if card is None:
+                continue
+            if card.list_id == TrelloProvider.listIncomingId:
                 speakers = self.get_speakers(item.id)
                 yield VotingModel(item.id, speakers, card.name, item.timestamp, card.url)
 
@@ -141,6 +147,9 @@ class DataBaseSystem:
             if not found:
                 parent = self.get_contract(item.parent_contract_id)
                 card = self.get_trello_card(parent.parameters_contract[0])
+                # TODO: removed card
+                if card is None:
+                    continue
                 speakers = self.get_speakers(item.parent_contract_id)
                 yield VotingModel(item.id, speakers, card.name, item.timestamp, card.url)
 
@@ -150,6 +159,9 @@ class DataBaseSystem:
             if item.type == 'Contract' and item.hash_contract == get_hash_contract('publication'):
                 parent = self.get_contract(item.parent_contract_id)
                 card = self.get_trello_card(parent.parameters_contract[0])
+                # TODO: removed card
+                if card is None:
+                    continue
                 speakers = self.get_speakers(item.parent_contract_id)
                 yield VotingModel(item.id, speakers, card.name,
                                   item.timestamp, card.url)
@@ -161,6 +173,9 @@ class DataBaseSystem:
             write_transaction(contract)
             self.transactions.append(contract)
             card = self.get_trello_card(lecture.parameters_contract[0])
+            # TODO: removed card
+            if card is None:
+                continue
             title = card.name.lstrip('(👍) ')
             cnt = 0
             for item in get_open_contracts(self.transactions, get_hash_contract('vote')):
